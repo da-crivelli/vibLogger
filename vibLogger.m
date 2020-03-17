@@ -47,10 +47,6 @@ function vibLogger(settings)
             pause(settings.recording_pause);
         end
         
-        if settings.live_preview
-            
-        end
-        
         fprintf('Acquiring %d/%d\n',scan_count,settings.max_acq_no);
         drawnow
     end

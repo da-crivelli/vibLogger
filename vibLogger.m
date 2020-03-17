@@ -30,25 +30,33 @@ function vibLogger(settings)
         mkdir(settings.output_folder);
     end
     
-    while(scan_count < settings.max_acq_no)
-        s.DurationInSeconds = settings.recording_time;
+    s.IsContinuous = true;
 
-        acq_date = datetime('now');
+    settings.acq_date = datetime('now');
 
-        [data,time] = s.startForeground;
+    if settings.save_data
+        lh = addlistener(s,'DataAvailable', ...
+            @(src,event) save_data(event.TimeStamps, event.Data, settings));
+    end
 
-        save_filename = strcat(settings.output_folder, ...
-            filesep,datestr(acq_date,'yyyymmdd_HHMMss'),'.mat');
-        
-        save(save_filename,'data','time','acq_date','settings');
+    if settings.live_preview
+        lh = addlistener(s,'DataAvailable', ...
+            @(src,event) display_data(event.TimeStamps, event.Data, settings));
+    end
 
-        scan_count = scan_count+1;
-        if(settings.recording_pause)
-            pause(settings.recording_pause);
+    s.NotifyWhenDataAvailableExceeds = settings.recording_time*settings.fsamp;
+
+    s.startBackground();
+    
+    % wait() will timeout by throwing an error...
+    try
+        s.wait(settings.timeout);
+    catch err
+        if not(err.identifier == "daq:Session:timeout")
+            rethrow(err);
+        else
+            disp('Finished recording');
         end
-        
-        fprintf('Acquiring %d/%d\n',scan_count,settings.max_acq_no);
-        drawnow
     end
 
     if(~exist(strcat(settings.output_folder,filesep,'config.m'),'file'))
@@ -57,5 +65,35 @@ function vibLogger(settings)
             strcat(settings.output_folder,filesep,'config.m'));
         
         open(strcat(settings.output_folder,filesep,'config.m'));
+    end
+end
+
+
+function save_data(time, data, settings)
+
+    acq_date = settings.acq_date +seconds(time(1));
+    
+    save_filename = strcat(settings.output_folder, ...
+        filesep,datestr(acq_date,'yyyymmdd_HHMMss'),'.mat');
+    
+    % to be removed... make it backwards compatible with the analyzer
+    fsamp = settings.fsamp;
+    recording_time = settings.recording_time;
+    
+    save(save_filename,'data','time','settings','acq_date','fsamp','recording_time');
+    fprintf('saved data %s\n',save_filename);        
+end
+
+function display_data(t, data, settings)
+    nrchans = length(settings.channels);
+    nrcols = ceil(sqrt(nrchans));
+    nrrows = ceil(nrchans/nrcols)*2;
+    for ch=1:length(settings.channels)
+        subplot(nrrows,nrcols,2*ch-1);
+        plot(t, data(:,ch));
+        
+        subplot(nrrows,nrcols,2*ch);
+        pwelch(data(:,ch),[],[],[],settings.fsamp);
+        
     end
 end

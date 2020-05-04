@@ -6,7 +6,7 @@ Vibration data logger and analysis tools
 To log data you need to call `vibLogger()` with a few configuration parameters. 
 You can copy the following example in a .m script and run it.
 
-CAUTION: **Caution:**
+**Caution:**
 The code under `\\dc.diamond.ac.uk\` is in a working directory, therefore it may
 and will break regularly, even during a measurement. Clone the master repository from Gitlab 
 `https://gitlab.diamond.ac.uk/mca67379/viblogger` for a stable non-live 
@@ -48,10 +48,10 @@ settings.save_data = false;      % currently there is no way to
 vibLogger(settings);
 ```
 
-## **{clear-all}** Processing data
+## Processing data
 
 ... to be written
 
-## **{appearance}** Plotting data
+## Plotting data
 
 ... to be written

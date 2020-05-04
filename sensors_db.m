@@ -59,9 +59,10 @@ function [sens] = sensors_db(in)
     % if the input is a string, it's a command
         switch(in)
             case 'list'
-                fprintf('MAKE\tMODEL\tSENSITIVITY\n');
+                fprintf('MAKE\tMODEL\tSENSIT.\t\tID\n');
                 for k=sensors.keys
-                    fprintf('%s\t\t%s\t%.3d\n',sensors(k{1}).make,sensors(k{1}).model,sensors(k{1}).sens);
+                    fprintf('%s\t\t%s\t%.3d\t%s\n',sensors(k{1}).make, ...
+                        sensors(k{1}).model,sensors(k{1}).sens,k{1});
                 end
             otherwise
                 error('Error. \nOption ''%s'' not recognised',in);

@@ -60,11 +60,10 @@ function vibLogger(settings)
     end
 
     if(~exist(strcat(settings.output_folder,filesep,'config.m'),'file'))
-        fun_path = fileparts(which('vibLogger'));
-        copyfile(strcat(fun_path,filesep,'/Copy_of_config.m'),...
-            strcat(settings.output_folder,filesep,'config.m'));
         
-        open(strcat(settings.output_folder,filesep,'config.m'));
+        % autowrite config file
+        create_vib_config_file(strcat(settings.output_folder,filesep,'config.m'),settings);
+        
     end
 end
 

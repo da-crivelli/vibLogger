@@ -2,7 +2,7 @@
 
 Vibration data logger and analysis tools
 
-## **{monitor-lines}** Logging data
+## Logging data
 To log data you need to call `vibLogger()` with a few configuration parameters. 
 You can copy the following example in a .m script and run it.
 

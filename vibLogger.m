@@ -1,15 +1,45 @@
-%   VibLogger
-%
-%   logs data from a NI 9234 board
+%VIBLOGGER(settings) logs data from a NI9234 board. 
 %   supports IEPE (ICP) accelerometers
+%   
+%   VIBLOGGER(settings) runs the acquisition code with settings specified
+%   in the settings structure. Parameters: (? denotes optional)
 %
-%   Davide Crivelli
-%   davide.crivelli@diamond.ac.uk
+%   settings.
+%     device_id (string): the device to log from. Run "devices = daq.getDevices" to find the device ID
+%     channels (array of int): which channels to read (start from 0)
+%     sensorIDs (cell of strings): sensor IDs (run sensors_db('list') to see all sensors currently on the database
+%     channel_names (cell of strings): human readable labels for channels
 %
-%   For details and usage see https://gitlab.diamond.ac.uk/mca67379/viblogger 
+%     channel_type (string): type of channel. 'Voltage' for standard voltage, 'IEPE' for IEPE / ICP sensors. Applies to all channels.
+%     ? iepe_excitation_current: excitation current for ICP sensors                  
+%                    
+%     fsamp (int): sampling frequency per channel in Hz (all channels)
+%     recording_time (float): time to record in seconds per block
+%     timeout (float): max acquisition time in seconds
 %
+%     output_folder (string): a folder where to save the results
+%     live_preview (bool): enables live graphs
+%     save_data (bool): whether to save data or just run the live preview 
+%   
+%     // the following parameters are optional and can also be manually
+%     specified in the config.m file that gets generated at the end:
+%
+%     ? transmiss_inputs: (array of int): inputs for transmissibility ratio
+%     ? transmiss_outputs: (array of int): outputs for transmissibility ratio
+%
+%
+%  Davide Crivelli
+%  davide.crivelli@diamond.ac.uk
+%
+%  For details and usage see https://gitlab.diamond.ac.uk/mca67379/viblogger 
+%
+%  see also: VIBANALYZER, VIBPLOTS, SENSORS_DB
+
+%% TODO:
+% - IEPE / voltage settings per channel instead of global
 
 function vibLogger(settings)
+
     % create session & initialise device
     s = daq.createSession('ni');
 
@@ -17,7 +47,9 @@ function vibLogger(settings)
         addAnalogInputChannel(s, settings.device_id, ...
                                  settings.channels(ch), ...
                                  settings.channel_type);
-        s.Channels(ch).ExcitationCurrent = settings.iepe_excitation_current;
+        if settings.channel_type == 'IEPE'
+            s.Channels(ch).ExcitationCurrent = settings.iepe_excitation_current;
+        end
     end
 
     s.Rate = settings.fsamp;

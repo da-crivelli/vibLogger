@@ -1,12 +1,36 @@
-%   VibAnalyzer
+%VIBANALYZER(settings) processes vibration data from VIBLOGGER
+%   
+%   VIBANALYZER(settings) runs the analysis code with settings specified
+%   in the settings structure. Parameters: (? denotes optional)
 %
-%   processes vibration data logged by VibLogger
+%   settings.
+%     data_folder (string): folder where data was saved by vibLogger
+%     output_file (string): .mat file where to save the processed data
+%     ? nrfiles (int): number of files to analyse. If not found, will process all files.
+%
+%     RESET_PROCESSED (bool): resets the output_file data
+%     CHECK_PLOTS (bool): plots for debugging. Use with caution
+%
+%     // frequency and data integration related stuff
+%     nrchunks (int): number of chunks to split data into before integration
+%     nrwindows (int): number of windows for transmissibility ratio
+%
+%     fcut (float): lowpass cutoff frequency in Hz
+%     spectrogram_freqs (array of float): spectral lines for spectrograms
+%
+%     is_velo (bool): set to TRUE if the measurements are already in velocity. 
+%
+%     // third octave band analysis config
+%     octave_opts: options for octave analysis
+%                  example: {'FrequencyLimits',[3.15 500],'BandsPerOctave',3}
+%
 %
 %   Davide Crivelli
 %   davide.crivelli@diamond.ac.uk
 %
 %   For details and usage see https://gitlab.diamond.ac.uk/mca67379/viblogger 
 %
+%  see also: VIBLOGGER, VIBPLOTS, SENSORS_DB
 
 function vibAnalyzer(settings)
 

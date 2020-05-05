@@ -10,8 +10,9 @@ function [sens] = sensors_db(in)
 %   Davide Crivelli
 %   davide.crivelli@diamond.ac.uk
 %
-%   v0.1 20200226 - initial release
+%  For details and usage see https://gitlab.diamond.ac.uk/mca67379/viblogger 
 %
+%  see also: VIBANALYZER, VIBPLOTS, VIBLOGGER
 
     % --- add new sensors to this area ---
     sensors = containers.Map;

@@ -62,7 +62,7 @@ addpath('\\dc.diamond.ac.uk\dls\science\users\mca67379\MATLAB\vibLogger');
 settings = struct();
 
 %% files and file processing
-settings.data_folder = '20200317_Office_Tests'; %where data was saved by vibAnalyzer
+settings.data_folder = '20200317_Office_Tests'; %where data was saved by vibLogger
 settings.output_file = '20200317_Office_Tests_Results.mat'; % where to save the processed data file
 
 %settings.nrfiles = 10;  % number of files to analyse. Comment out to process all files.

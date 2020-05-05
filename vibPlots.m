@@ -5,51 +5,24 @@
 %   Davide Crivelli
 %   davide.crivelli@diamond.ac.uk
 %
-%   v0.1 20200211 - initial release
-%   
-
-clearvars
-close all
-close all hidden
-
-addpath('C:\Users\mca67379\OneDrive - Diamond Light Source Ltd\Matlab');
+%   For details and usage see https://gitlab.diamond.ac.uk/mca67379/viblogger 
+%
 
 
-fname = '20200311_Mirror_I19_NoTMD';
+%% TODO
+% - vc_curves parameters should be hardcoded in the plotting bit
+% - add default parameters
 
-processed_file = ['Processed\',fname,'.mat'];
-    
-fg_output_folder = ['Plots\',fname,'\'];
-
-rms_probplot_cutoff = 100000;  %cutoff value for probability plot, nm
-p2p_probplot_cutoff = 1000000;
-
-
-third_oct_bands_ctr = 10.^(0.1:0.1:2);   % BS ISO 266-1997
-fd = 10^0.05;
-
-
-%freq_band_slice = [0:50:500];
-freq_band_slice = [0:5:50];
-freq_band_slice(1) = 1;
-
-vc_curves = [0.78 0.39 0.195 0.097 0.048 0.024 0.012];
-vc_labels = {'VC-G','VC-H','VC-I','VC-J','VC-K','VC-L','VC-M'};
-
-
-hour_slices = [0 3 4 7 16 20 24];
-
-SAVE_PLOTS = false;
-
-
+function vibPlots(settings)
 
 
 %% variable prep and config
-load(processed_file);
+load(settings.processed_file);
 nrchans = size(rms_disp,1);
 
-fupper = third_oct_bands_ctr * fd;
-flower = third_oct_bands_ctr / fd;
+% are these needed at all?
+%fupper = third_oct_bands_ctr * fd; 
+%flower = third_oct_bands_ctr / fd;
 
 figures = containers.Map;
 
@@ -150,12 +123,12 @@ xlim([0 xl_p2p]);
 
 
 %% probability charts 
-pdist = fitdist(-[rms_disp(1,rms_disp(1,:)<rms_probplot_cutoff)]','extreme value');
+pdist = fitdist(-[rms_disp(1,rms_disp(1,:)<settings.rms_probplot_cutoff)]','extreme value');
 ci = paramci(pdist);
 ev_up = evpdf(-[0:0.1:100],ci(1,1),ci(2,1));
 
 figure();
-probplot('extreme value',-[rms_disp(1,rms_disp(1,:)<rms_probplot_cutoff)]);
+probplot('extreme value',-[rms_disp(1,rms_disp(1,:)<settings.rms_probplot_cutoff)]);
 hold on;
 probplot('extreme value',-ev_up);
 
@@ -242,7 +215,7 @@ end
 %legend([channel_names,{'Noise floor'}]);
 legend(channel_names);
 
-xlim([-Inf freq_band_slice(end)])
+xlim([-Inf settings.freq_band_slice(end)])
 
 xlabel('Frequency [Hz]');
 ylabel('Displacement/freq (nm/Hz)');
@@ -281,7 +254,7 @@ end
 
 for chan=1:nrchans
     subplot(1,nrchans,chan);
-    %xlim([-Inf freq_band_slice(end)]);
+    %xlim([-Inf settings.freq_band_slice(end)]);
     xlabel('Frequency [Hz]');
     if(chan==1); ylabel('Integrated displacement (nm)'); end;
     title(channel_names{chan});
@@ -324,9 +297,9 @@ for ch=1:nrchans
     
     hold on;
     xx = xlim();
-    for cvc = 1:length(vc_curves)
-        plot(xx,[10*log10(vc_curves(cvc)) 10*log10(vc_curves(cvc))],'--','HandleVisibility','off');
-        text(xx(2),10*log10(vc_curves(cvc)),vc_labels{cvc});
+    for cvc = 1:length(settings.vc_curves)
+        plot(xx,[10*log10(settings.vc_curves(cvc)) 10*log10(settings.vc_curves(cvc))],'--','HandleVisibility','off');
+        text(xx(2),10*log10(settings.vc_curves(cvc)),settings.vc_labels{cvc});
     end
     
     %equalising Y limit
@@ -348,10 +321,10 @@ end
 for chan = 1:nrchans
     figures(sprintf('band_RMS_ch%d',chan)) = figure('name',sprintf('band_RMS_ch%d',chan));
     
-    for fbin = 1:(length(freq_band_slice)-1)
-        bin_idxs = ff>=freq_band_slice(fbin) & ff<(freq_band_slice(fbin+1));
+    for fbin = 1:(length(settings.freq_band_slice)-1)
+        bin_idxs = ff>=settings.freq_band_slice(fbin) & ff<(settings.freq_band_slice(fbin+1));
         freq_slice(chan,fbin,:) = sum(psd_vib_disp(chan,bin_idxs,:),2);
-        freq_slice_legend{fbin} = sprintf('%dHz - %dHz',freq_band_slice(fbin), freq_band_slice(fbin+1));
+        freq_slice_legend{fbin} = sprintf('%dHz - %dHz',settings.freq_band_slice(fbin), settings.freq_band_slice(fbin+1));
         
     end
      
@@ -366,11 +339,11 @@ end
 for chan = 1:nrchans
     figures(sprintf('band_hist_ch%d',chan)) = figure('name',sprintf('band_hist_ch%d',chan));
     
-    for fbin = 1:(length(freq_band_slice)-1)
+    for fbin = 1:(length(settings.freq_band_slice)-1)
         [n,edges] = histcounts(freq_slice(chan,fbin,:));
         
         patch([edges(1) edges(1:end-1) edges(end)], ...
-            repmat(freq_band_slice(fbin),length(edges(1:end-1))+2,1), ...
+            repmat(settings.freq_band_slice(fbin),length(edges(1:end-1))+2,1), ...
             [0 n 0], fbin);
         hold on;
     end
@@ -394,9 +367,9 @@ hourOfDay = hour(acq_times);
 
 figures('RMS_by_time') = figure('name','RMS by hour of day');
 
-for hh=1:(length(hour_slices)-1)
-    subplot(length(hour_slices)-1,1,hh)
-    b = [hour_slices(hh),hour_slices(hh+1)]; %[start, end] of desired time bounds (24 hr format)
+for hh=1:(length(settings.hour_slices)-1)
+    subplot(length(settings.hour_slices)-1,1,hh)
+    b = [settings.hour_slices(hh),settings.hour_slices(hh+1)]; %[start, end] of desired time bounds (24 hr format)
     selectedTimes = hourOfDay >= b(1) & hourOfDay <= b(2); 
     % isolate all rows of timetable between desired time bounds
     for ch=1:nrchans
@@ -407,16 +380,16 @@ for hh=1:(length(hour_slices)-1)
     a = ylim;
     text(10,a(2)*0.85,sprintf('between %d-%d hours (nm)',b(1),b(2)),'HorizontalAlignment','center')
     
-    if(hh==(length(hour_slices)-1)); xlabel('RMS displacement'); end;
+    if(hh==(length(settings.hour_slices)-1)); xlabel('RMS displacement'); end;
     if(hh==2); ylabel('Probability density'); end;
     xlim([0 xl_rms]);
     if(hh==1); legend(channel_names); end;
     
-    if(hh < (length(hour_slices)-1)); set(gca,'XTick',[]); end;
+    if(hh < (length(settings.hour_slices)-1)); set(gca,'XTick',[]); end;
     
     pos = get(gca, 'Position');
     %pos(1) = 0.055;
-    pos(4) = 1/((length(hour_slices)-1))-0.03;
+    pos(4) = 1/((length(settings.hour_slices)-1))-0.03;
     set(gca, 'Position', pos)
     grid on
     
@@ -507,9 +480,9 @@ if(exist('inputs','var'))
             hold on;
             grid on;
             
-            if(i==1); plot(minmax(freq_band_slice),[1 1],'--r'); end
+            if(i==1); plot(minmax(settings.freq_band_slice),[1 1],'--r'); end
             ylabel(y_labels{i});
-            xlim(minmax(freq_band_slice))
+            xlim(minmax(settings.freq_band_slice))
             
             if(i==3); xlabel('Frequency (Hz)'); end
         end           
@@ -518,11 +491,11 @@ if(exist('inputs','var'))
 end
 
 %% figure setup and printing
-if(SAVE_PLOTS)
+if(settings.SAVE_PLOTS)
     fg_names = figures.keys;
     
-    if(~exist(fg_output_folder,'dir'))
-        mkdir(fg_output_folder);
+    if(~exist(settings.fg_output_folder,'dir'))
+        mkdir(settings.fg_output_folder);
     end
     
     for fg=1:length(figures)
@@ -538,11 +511,11 @@ if(SAVE_PLOTS)
         set(fgr,'Units','Inches');
         pos = get(fgr,'Position');        
         set(fgr,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)])        
-        print(strcat(fg_output_folder,fg_names{fg}),'-dpdf','-r0');
-        print(strcat(fg_output_folder,fg_names{fg}),'-dpng','-r600');
+        print(strcat(settings.fg_output_folder,fg_names{fg}),'-dpdf','-r0');
+        print(strcat(settings.fg_output_folder,fg_names{fg}),'-dpng','-r600');
     end
 
-    fid = fopen([fg_output_folder,'stats.txt'],'w');
+    fid = fopen([settings.fg_output_folder,'stats.txt'],'w');
     for ch=1:nrchans
         fprintf(fid,'RMS 99 percent prob, %s \t %.2d\n',channel_names{ch},rms_prob(ch));
         fprintf(fid,'P2P 99 percent prob, %s \t %.2d\n',channel_names{ch},p2p_prob(ch));
@@ -552,3 +525,4 @@ if(SAVE_PLOTS)
 end
     
     
+end

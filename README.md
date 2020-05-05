@@ -93,4 +93,50 @@ vibAnalyzer(settings);
 
 ## Plotting data
 
-... to be written
+To produce plots, you need to call the `vibPlotter()` function - see below example for available settings. 
+The plotter will save, if `SAVE_PLOTS` is set to `true`, a collection of .pdf and .png plots in addition to 
+plotting them.
+
+
+```matlab
+clearvars
+close all
+close all hidden
+
+addpath('\\dc.diamond.ac.uk\dls\science\users\mca67379\MATLAB\vibLogger');
+
+% configuration
+settings = struct();
+
+%where the processed data was saved by vibAnalyzer
+settings.processed_file = '20200317_Office_Tests_Results.mat'; 
+
+%where to save the figures (if SAVE_PLOTS is true)
+settings.fg_output_folder = 'Plots\office_tests\';
+settings.SAVE_PLOTS = false;
+
+% probability plot params
+settings.rms_probplot_cutoff = 100000;  %cutoff value for probability plot, nm
+settings.p2p_probplot_cutoff = 1000000;
+
+% third_oct_bands_ctr = 10.^(0.1:0.1:2);   % BS ISO 266-1997
+%fd = 10^0.05;
+
+
+% sets bands for band-passed RMS plots
+settings.freq_band_slice = 0:5:50;
+settings.freq_band_slice(1) = 1;
+
+% VC levels for VC curves (should not need changing)
+settings.vc_curves = [0.78 0.39 0.195 0.097 0.048 0.024 0.012];
+settings.vc_labels = {'VC-G','VC-H','VC-I','VC-J','VC-K','VC-L','VC-M'};
+
+% hours slices for by-hour statistics plots
+settings.hour_slices = [0 3 4 7 16 20 24];
+
+
+
+%% run the plotter
+vibPlotter(settings);
+
+```

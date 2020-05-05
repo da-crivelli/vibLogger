@@ -34,9 +34,6 @@
 
 function vibAnalyzer(settings)
 
-%% TODO: base nrchunks on the chunk length in seconds
-%% TODO: is_velo should not exist, add to sensors_db?
-
 run(strcat(settings.data_folder,filesep,'config.m'));
 
 % check for legacy configuration and throw warning

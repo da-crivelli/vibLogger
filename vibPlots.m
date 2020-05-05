@@ -1,17 +1,33 @@
-%   VibPlots
+%   VIBPLOTS(settings) plots data processed by vibAnalyzer
+%   
+%   VIBANALYZER(settings) runs the analysis code with settings specified
+%   in the settings structure. Parameters: (? denotes optional)
 %
-%   plots data logged by VibLogger and processed by VibAnalyzer
+%   settings.
+%     processed_file (string): where the processed data was saved by vibAnalyzer
+%     SAVE_PLOTS (bool): whether to save all plots in .pdf and .png form
+%     fg_output_folder (string): where to save the plot files
+%
+%	  // probability plot params
+%     rms_probplot_cutoff (float): RMS cutoff values for probability chart
+%     p2p_probplot_cutoff (float): as above, for p2p
+%     
+%     freq_band_slice (array of float): sets bands for band-passed RMS plots
+%
+%     // VC levels for VC curves (should not need changing)
+%     vc_curves (array of int)
+%     vc_labels (cell array of strings)
+%   
+%     hour_slices (array of float, 0 to 24): hours slices for by-hour statistics plots
+%
 %
 %   Davide Crivelli
 %   davide.crivelli@diamond.ac.uk
 %
 %   For details and usage see https://gitlab.diamond.ac.uk/mca67379/viblogger 
 %
+%   see also VIBLOGGER, VIBANALYZER, SENSORS_DB
 
-
-%% TODO
-% - vc_curves parameters should be hardcoded in the plotting bit
-% - add default parameters
 
 function vibPlots(settings)
 

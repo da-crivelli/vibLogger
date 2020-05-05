@@ -35,9 +35,6 @@
 %
 %  see also: VIBANALYZER, VIBPLOTS, SENSORS_DB
 
-%% TODO:
-% - IEPE / voltage settings per channel instead of global
-
 function vibLogger(settings)
 
     % create session & initialise device
@@ -47,7 +44,7 @@ function vibLogger(settings)
         addAnalogInputChannel(s, settings.device_id, ...
                                  settings.channels(ch), ...
                                  settings.channel_type);
-        if settings.channel_type == 'IEPE'
+        if strcmp(settings.channel_type,'IEPE')
             s.Channels(ch).ExcitationCurrent = settings.iepe_excitation_current;
         end
     end

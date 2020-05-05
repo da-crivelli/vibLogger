@@ -36,7 +36,6 @@ settings.iepe_excitation_current = .004;
                         
 settings.fsamp = 2048;   % sampling frequency in Hz
 settings.recording_time = 1; % time to record in seconds per block
-settings.recording_pause = 0; % time to pause in between recordings
 settings.timeout = 33;   % max acquisition time in seconds
 
 settings.output_folder = '20200317_Office_Tests'; %where to save the results

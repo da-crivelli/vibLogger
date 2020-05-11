@@ -56,42 +56,22 @@ figures('p2p_t') = plot_timeseries_hist(acq_times, p2p_disp, ...
 
 
 %% stats & distributions
-figures('distributions') = figure();
-subplot(1,2,1);
 
+figures('distributions_RMS') = plot_prob_distribution(rms_disp, ...
+    'FigureName', 'RMS distribution', ...
+    'YLabel', 'RMS displacement [nm]', ...
+    'Legend', channel_names, ...
+    'ProbChart', 'LogNormal', ...
+    'ProbThreshold', 0.995);
 
-fprintf('\n== Stats ==\n');
-for c=1:nrchans
-    h(c) = histogram(rms_disp(c,:),'Normalization','probability');
-    hold on;
-    cv = find(cumsum(h(c).Values)>0.99,1);
-    rms_prob(c) = h(c).BinEdges(cv);
-    fprintf('RMS 99 percent prob, %s = %2.2f\n',channel_names{c},rms_prob(c));
-end
+figures('distributions_P2P') = plot_prob_distribution(p2p_disp, ...
+    'FigureName', 'P2P distribution', ...
+    'YLabel', 'P2P displacement [nm]', ...
+    'Legend', channel_names, ...
+    'ProbChart', 'LogNormal', ...
+    'ProbThreshold', 0.995);
 
-xl_rms = round(max(rms_prob)/5)*5;
-xlim([0 xl_rms]);
-xlabel('RMS displacement [nm]')
-ylabel('Probability');
-legend(channel_names)
-
-
-
-subplot(1,2,2);
-for c=1:nrchans
-    h(c) = histogram(p2p_disp(c,:),'Normalization','probability');
-    hold on;
-    cv = find(cumsum(h(c).Values)>0.99,1);
-    p2p_prob(c) = h(c).BinEdges(cv);
-    fprintf('P2P 99 percent prob, %s = %2.2f\n',channel_names{c},p2p_prob(c));
-end
-
-xl_p2p = round(max(p2p_prob)/5)*5;
-
-xlabel('P2P displacement [nm]')
-ylabel('Probability');
-legend(channel_names)
-xlim([0 xl_p2p]);
+die
 
 
 

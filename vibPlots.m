@@ -33,7 +33,7 @@ function vibPlots(settings)
 
 
 %% variable prep and config
-load(settings.processed_file);
+load(settings.processed_file);  
 nrchans = size(rms_disp,1);
 
 % are these needed at all?
@@ -43,60 +43,17 @@ nrchans = size(rms_disp,1);
 figures = containers.Map;
 
 %% time driven data
-figures('rms_t') = figure('name','RMS of vibration over time');
-for k=0:1
-    subplot(2,3,(k*3+1):(k*3+2));
-    plot(acq_times,rms_disp');
-    
-    if k==1; ylim([0 50]); end;
-    
-    grid on
-    ylabel('RMS [nm] from FFT (over 1s)');
-    xlabel('Dataset');
-      
-    legend(channel_names)
-    
-    yl = ylim();
-    
-    subplot(2,3,(k+1)*3)
-    for c=1:nrchans
-        histogram(rms_disp(c,:),'Normalization','pdf','Orientation','horizontal','EdgeColor','none');
-        hold on;
-        grid on
-    end
-    ylim(yl);
-    xlabel('Probability density');
-    ylabel('RMS [nm] from FFT (over 1s)');
-    
-end
 
+figures('rms_t') = plot_timeseries_hist(acq_times, rms_disp, ...
+    'FigureName','RMS of vibration over time',...
+    'YLabel','RMS [nm] from FFT',...
+    'Legend',channel_names);
 
-figures('p2p_t') = figure('name','P2P of vibration over time');
-for k=0:1
-    subplot(2,3,(k*3+1):(k*3+2));
-    plot(acq_times,p2p_disp');
-    
-    if k==1; ylim([0 150]); end;
-    
-    grid on;
-    ylabel('Peak to peak [nm]');
-    xlabel('Dataset');
-    
-    legend(channel_names)
-    
-    yl = ylim();
-    
-    subplot(2,3,(k+1)*3)
-    for c=1:nrchans
-        histogram(p2p_disp(c,:),'Normalization','probability','Orientation','horizontal','EdgeColor','none');
-        hold on;
-        grid on
-    end
-    ylim(yl);
-    xlabel('Probability');
-    ylabel('Peak to peak [nm]');
-end
-    
+figures('p2p_t') = plot_timeseries_hist(acq_times, p2p_disp, ...
+    'FigureName','P2P of vibration over time',...
+    'YLabel','Peak to peak [nm]',...
+    'Legend',channel_names);
+
 
 %% stats & distributions
 figures('distributions') = figure();
@@ -176,7 +133,7 @@ end
 %psd_vib_v2
 
 for ch=1:nrchans
-    figures(sprintf('PSD_accel_ch%d',ch)) = figure('name',sprintf('PSD of displacement, channel %s',channel_names{ch}));
+    figures(sprintf('PSD_disp_ch%d',ch)) = figure('name',sprintf('PSD of displacement, channel %s',channel_names{ch}));
     subplot(3,1,1);
     title(sprintf('Channel %.0d',ch));
     plot(acq_times,rms_disp(ch,:));

@@ -9,8 +9,8 @@
 %     fg_output_folder (string): where to save the plot files
 %
 %	  // probability plot params
-%     rms_probplot_cutoff (float): RMS cutoff values for probability chart
-%     p2p_probplot_cutoff (float): as above, for p2p
+%     prob_chart_distribution (string): probability chart distribution. 'none', 'LogNormal', ...
+%     prob_threshold (float): probability threshold for calculating %prob values
 %     
 %     freq_band_slice (array of float): sets bands for band-passed RMS plots
 %
@@ -61,29 +61,18 @@ figures('distributions_RMS') = plot_prob_distribution(rms_disp, ...
     'FigureName', 'RMS distribution', ...
     'YLabel', 'RMS displacement [nm]', ...
     'Legend', channel_names, ...
-    'ProbChart', 'LogNormal', ...
-    'ProbThreshold', 0.995);
+    'ProbChart', settings.prob_chart_distribution, ...
+    'ProbThreshold', settings.prob_threshold);
 
 figures('distributions_P2P') = plot_prob_distribution(p2p_disp, ...
     'FigureName', 'P2P distribution', ...
     'YLabel', 'P2P displacement [nm]', ...
     'Legend', channel_names, ...
-    'ProbChart', 'LogNormal', ...
-    'ProbThreshold', 0.995);
+    'ProbChart', settings.prob_chart_distribution, ...
+    'ProbThreshold', settings.prob_threshold);
 
 die
 
-
-
-%% probability charts 
-pdist = fitdist(-[rms_disp(1,rms_disp(1,:)<settings.rms_probplot_cutoff)]','extreme value');
-ci = paramci(pdist);
-ev_up = evpdf(-[0:0.1:100],ci(1,1),ci(2,1));
-
-figure();
-probplot('extreme value',-[rms_disp(1,rms_disp(1,:)<settings.rms_probplot_cutoff)]);
-hold on;
-probplot('extreme value',-ev_up);
 
 %% PSD of acceleration
 

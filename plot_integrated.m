@@ -70,6 +70,14 @@ for ch=1:nr_chans
     grid on;
         
     legend({'Mean','Max','Min'}, 'EdgeColor','white','Color','white','Location',loc);
+    
+    yl(ch,:) = ylim();
+end
+
+% equalise Y limits
+for ch=1:nr_chans
+    subplot(1, nr_chans, ch);
+    ylim([min(yl(:,1)),max(yl(:,2))]);
 end
 
 end

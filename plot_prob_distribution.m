@@ -85,7 +85,7 @@ if(~(strcmp(opts.ProbChart,'none')))
         probplot(pdist{c}, y(c,:));
         p = gca();
         p.Title.String = replace(p.Title.String,'Probability plot for','');
-        p.Title.String = replace(p.Title.String,'distribution','')
+        p.Title.String = replace(p.Title.String,'distribution','');
         grid on;
         legend({opts.ProbChart,opts.Legend{c}},'Location','SouthEast',...
             'EdgeColor','white','Color','white');

@@ -18,10 +18,6 @@
 %     
 %     freq_band_slice (array of float): sets bands for band-passed RMS plots
 %
-%     // VC levels for VC curves (should not need changing)
-%     vc_curves (array of int)
-%     vc_labels (cell array of strings)
-%   
 %     hour_slices (array of float, 0 to 24): hours slices for by-hour statistics plots
 %
 %
@@ -32,6 +28,7 @@
 %     spectrograms: spectrograms of RMS displacement and acceleration
 %     psd: displacement and acceleration PSD plots
 %     integrated: integrated displacement
+%     vc_curves: VC curves / third octave plots
 %
 %   Davide Crivelli
 %   davide.crivelli@diamond.ac.uk
@@ -92,7 +89,7 @@ if(any(strcmp(settings.plots,'distributions')) || plot_all)
         'ProbThreshold', settings.prob_threshold);
 end
 
-%% spectrogram of acceleration & displacement
+%% 'spectrograms': spectrogram of acceleration & displacement
 
 if(any(strcmp(settings.plots,'spectrograms')) || plot_all)
     for ch=1:nrchans
@@ -114,9 +111,7 @@ if(any(strcmp(settings.plots,'spectrograms')) || plot_all)
     end
 end
 
-
-
-%% mean PSD - accel and displacement
+%% 'psd': mean PSD - accel and displacement
 
 if(any(strcmp(settings.plots,'psd')) || plot_all)
     figures('mean_accel_PSD') = plot_psd(freq, squeeze(mean(psd_vib,3)),...
@@ -133,9 +128,8 @@ end
 
 
 
-%% integrated displacement
+%% 'integrated': integrated displacement
 
-% psd_vib_disp
 if(any(strcmp(settings.plots,'integrated')) || plot_all)
     figures('integrated_disp') = plot_integrated(ff, psd_vib_disp, ...
         'FigureName','integrated_disp',...
@@ -144,57 +138,17 @@ if(any(strcmp(settings.plots,'integrated')) || plot_all)
         'Direction',settings.integrated_direction);
 end
 
+
+%% 'vc_curves': VC curves / third octave plots
+
+if(any(strcmp(settings.plots,'vc_curves')) || plot_all)
+    figures('VC_curves') = plot_vc_curves(cf, velo_octave_spec, ...
+        'FigureName','VC_curves',...
+        'YLabel','RMS velocity (dB re 1 um/s)',...
+        'Legend',channel_names);
+end
+
 die
-
-%% Third octave plots
-
-figures('VC_curves') = figure('name','VC curves and velocity third octave bands');
-
-velo_octave_spec_mean = mean(velo_octave_spec,3);
-velo_octave_spec_std = std(velo_octave_spec,0,3);
-velo_octave_spec_max = max(velo_octave_spec,[],3);
-
-vm = 10*log10(velo_octave_spec_mean);
-vu = 10*log10(velo_octave_spec_mean + velo_octave_spec_std);
-vmax = 10*log10(velo_octave_spec_max);
-
-yl = [Inf 0];
-
-for ch=1:nrchans
-    subplot(1,nrchans,ch);
-    %semilogx(cf,squeeze(velo_octave_spec(ch,:,:)))
-    
-    semilogx(cf,vm(ch,:),'LineWidth',2);
-    hold on;
-    semilogx(cf,vu(ch,:));
-    semilogx(cf,vmax(ch,:));
-    
-    
-    legend({'Mean','+\sigma','max'},'location','best');
-    
-    xlabel('Frequency (Hz)');
-    ylabel('RMS velocity (dB re 1 um/s)');
-    title(channel_names{ch});
-    
-    hold on;
-    xx = xlim();
-    for cvc = 1:length(settings.vc_curves)
-        plot(xx,[10*log10(settings.vc_curves(cvc)) 10*log10(settings.vc_curves(cvc))],'--','HandleVisibility','off');
-        text(xx(2),10*log10(settings.vc_curves(cvc)),settings.vc_labels{cvc});
-    end
-    
-    %equalising Y limit
-    yll = ylim();
-    yl(1) = min(yl(1),yll(1));
-    yl(2) = max(yl(2),yll(2));
-end
-
-for(ch=1:nrchans)
-    subplot(1,nrchans,ch);
-    ylim(yl);
-end
-
-
 
 
 %% "band pass" plots

@@ -28,6 +28,7 @@
 %     time: RMS and P2P of displacement vs time, with distributions
 %     distributions: probability distributions with distribution charts
 %     spectrograms: spectrograms of RMS displacement and acceleration
+%     psd: displacement and acceleration PSD plots
 %
 %   Davide Crivelli
 %   davide.crivelli@diamond.ac.uk
@@ -111,47 +112,22 @@ if(any(strcmp(settings.plots,'spectrograms')) || plot_all)
 end
 
 
+
+%% mean PSD - accel and displacement
+
+if(any(strcmp(settings.plots,'psd')) || plot_all)
+    figures('mean_accel_PSD') = plot_psd(freq, squeeze(mean(psd_vib,3)),...
+        'FigureName','mean_accel_PSD',...
+        'YLabel','Acceleration power (eu)',...
+        'Legend',channel_names);
+
+
+    figures('mean_disp_PSD') = plot_psd(ff, squeeze(mean(psd_vib_disp,3)),...
+        'FigureName','mean_disp_PSD',...
+        'YLabel','Displacement/freq (nm/Hz)',...
+        'Legend',channel_names);
+end
 die
-
-%% mean PSD
-
-figures('mean_accel_PSD') = figure();
-
-for chan=1:nrchans
-    loglog(freq,mean(squeeze(psd_vib(chan,:,:)),2))
-    hold on
-end
-
-legend(channel_names)
-
-
-xlabel('Frequency [Hz]');
-ylabel('Accel. power (eu)');
-grid on;
-
-%% Displacement PSD
-
-%f_spc_noise = 1:300;
-%amp_spc_noise = 3E03 ./ (4*pi^2 .*(ff.^2))';
-
-
-figures('mean_disp_PSD') = figure();
-for chan=1:nrchans
-    loglog(ff,mean(squeeze(psd_vib_disp(chan,:,:)),2))
-    hold on;
-end
-
-%x
-%semilogy(ff,amp_spc_noise,':k');
-%legend([channel_names,{'Noise floor'}]);
-legend(channel_names);
-
-xlim([-Inf settings.freq_band_slice(end)])
-
-xlabel('Frequency [Hz]');
-ylabel('Displacement/freq (nm/Hz)');
-grid on
-
 
 
 %% integrated displacement

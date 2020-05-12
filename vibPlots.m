@@ -10,6 +10,8 @@
 %
 %     plots (cell of strings): which plots to show (see below)
 %
+%     integrated_direction (string): direction for integrated displacement plot. 'increasing' or 'decreasing'
+%
 %	  // probability plot params
 %     prob_chart_distribution (string): probability chart distribution. 'none', 'LogNormal', ...
 %     prob_threshold (float): probability threshold for calculating %prob values
@@ -29,6 +31,7 @@
 %     distributions: probability distributions with distribution charts
 %     spectrograms: spectrograms of RMS displacement and acceleration
 %     psd: displacement and acceleration PSD plots
+%     integrated: integrated displacement
 %
 %   Davide Crivelli
 %   davide.crivelli@diamond.ac.uk
@@ -127,50 +130,21 @@ if(any(strcmp(settings.plots,'psd')) || plot_all)
         'YLabel','Displacement/freq (nm/Hz)',...
         'Legend',channel_names);
 end
-die
+
 
 
 %% integrated displacement
-figures('integrated_disp') = figure('name','Integrated displacement');
 
-% mean plots
-for chan=1:nrchans
-    subplot(1,nrchans,chan);
-    idd = mean(squeeze(integr_disp(chan,:,:)),2);
-    h = semilogx(ff,idd,'linewidth',2);
-    hold on;
-    col(chan,:) = get(h,'color');
-    
-    
-    % label at the end with RMS value
-    text(ff(end),idd(end),sprintf('\\leftarrow RMS\n %.2f',idd(end)));
-    
+% psd_vib_disp
+if(any(strcmp(settings.plots,'integrated')) || plot_all)
+    figures('integrated_disp') = plot_integrated(ff, psd_vib_disp, ...
+        'FigureName','integrated_disp',...
+        'YLabel','Integrated displacement (nm)',...
+        'Legend',channel_names, ...
+        'Direction',settings.integrated_direction);
 end
 
-% max & min
-for chan=1:nrchans
-    subplot(1,nrchans,chan);
-    line_color = col(chan,:);
-    
-    semilogx(ff,mean(squeeze(integr_disp(chan,:,:)),2)+std(squeeze(integr_disp(chan,:,:))')','--r');
-    semilogx(ff,max(squeeze(integr_disp(chan,:,:))'),'--','Color',line_color);
-    semilogx(ff,min(squeeze(integr_disp(chan,:,:))'),':','Color',line_color);
-    
-    yl1(chan,:) = ylim();
-end
-
-for chan=1:nrchans
-    subplot(1,nrchans,chan);
-    %xlim([-Inf settings.freq_band_slice(end)]);
-    xlabel('Frequency [Hz]');
-    if(chan==1); ylabel('Integrated displacement (nm)'); end;
-    title(channel_names{chan});
-    grid on
-    legend({'mean','+1\sigma','max','min'},'location','best');
-    ylim([min(yl1(:,1)),max(yl1(:,2))]);
-end
-
-
+die
 
 %% Third octave plots
 

@@ -60,7 +60,7 @@ for c=1:nr_chans
     % find the cumulate probability percent
     cv = find(cumsum(h(c).Values)>opts.ProbThreshold,1);
     prob(c) = h(c).BinEdges(cv);
-    fprintf('%0.2f percent prob, %s = %2.2f\n', opts.ProbThreshold*100, opts.Legend{c}, prob(c));
+    fprintf('%0.2f%%, %s = %2.2f\n', opts.ProbThreshold*100, opts.Legend{c}, prob(c));
     xl(c,:) = xlim();
 end
 

@@ -71,58 +71,31 @@ figures('distributions_P2P') = plot_prob_distribution(p2p_disp, ...
     'ProbChart', settings.prob_chart_distribution, ...
     'ProbThreshold', settings.prob_threshold);
 
-die
-
-
 %% PSD of acceleration
 
 for ch=1:nrchans
-    figures(sprintf('PSD_accel_ch%d',ch)) = figure('name',sprintf('PSD of accel, channel %s',channel_names{ch}));
-    subplot(3,1,1);
-    title(sprintf('Channel %.0d',ch));
-    plot(acq_times,rms_disp(ch,:));
-    legend(channel_names{ch});
-    ylabel('Displacement RMS (nm)');
-    subplot(3,1,2:3);
-    %imagesc((1:length(psd_vib))./60,freq,squeeze(10*log10(psd_vib(ch,:,:))))
-    surf(acq_times_file,freq,squeeze(10*log10(psd_vib(ch,:,:))),'EdgeColor','none');
-    view(0,90);
-    colormap(flipud(gray))
-    cbar = colorbar('east');
-    cbar.Label.String = 'Acceleration (dB/Hz)';
-    xlabel('Hours');
-    ylabel('Freq (Hz)')
-    ax=gca();
+    figures(sprintf('PSD_accel_ch%d',ch)) = plot_spectrogram(acq_times, rms_disp(ch,:),...
+        acq_times_file,freq,squeeze(10*log10(psd_vib(ch,:,:))), ...
+        'FigureName', sprintf('PSD of acceleration, channel %s',channel_names{ch}),...
+        'YLabel','Displacement RMS (nm)',...
+        'Clabel','Acceleration (dB/Hz)',...
+        'Legend',channel_names{ch});
 end
 
 
 %% PSD of displacement
 
-%psd_vib_disp
-%psd_vib_v2
-
 for ch=1:nrchans
-    figures(sprintf('PSD_disp_ch%d',ch)) = figure('name',sprintf('PSD of displacement, channel %s',channel_names{ch}));
-    subplot(3,1,1);
-    title(sprintf('Channel %.0d',ch));
-    plot(acq_times,rms_disp(ch,:));
-    legend(channel_names{ch});
-    ylabel('Displacement RMS (nm)');
-    subplot(3,1,2:3);
-    %imagesc((1:length(psd_vib))./60,freq,squeeze(10*log10(psd_vib(ch,:,:))))
-    surf(acq_times_file,ff,squeeze(10*log10(psd_vib_disp(ch,:,:))),'EdgeColor','none');
-    %surf(acq_times_file,ff,squeeze(psd_vib_v2(ch,:,:)),'EdgeColor','none');
-    view(0,90);
-    ylim([0 250]);
-    colormap(flipud(gray))
-    cbar = colorbar('east');
-    cbar.Label.String = 'Displacement (dB/Hz)';
-    xlabel('Hours');
-    ylabel('Freq (Hz)')
-    ax=gca();
+    figures(sprintf('PSD_disp_ch%d',ch)) = plot_spectrogram(acq_times, rms_disp(ch,:),...
+        acq_times_file,ff,squeeze(10*log10(psd_vib_disp(ch,:,:))), ...
+        'FigureName', sprintf('PSD of displacement, channel %s',channel_names{ch}),...
+        'YLabel','Displacement RMS (nm)',...
+        'Clabel','Displacement (dB/Hz)',...
+        'Legend',channel_names{ch});
 end
 
 
+die
 
 %% mean PSD
 

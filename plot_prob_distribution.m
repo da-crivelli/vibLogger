@@ -99,6 +99,8 @@ if(~(strcmp(opts.ProbChart,'none')))
         grid on;
         legend({opts.ProbChart,opts.Legend{c}},'Location','SouthEast',...
             'EdgeColor','white','Color','white');
+        
+        p.Children(1).Color = p.ColorOrder(c,:);
     end
 end
 

@@ -29,6 +29,7 @@
 %     psd: displacement and acceleration PSD plots
 %     integrated: integrated displacement
 %     vc_curves: VC curves / third octave plots
+%     band_rms: RMS by frequency band
 %
 %   Davide Crivelli
 %   davide.crivelli@diamond.ac.uk
@@ -148,26 +149,31 @@ if(any(strcmp(settings.plots,'vc_curves')) || plot_all)
         'Legend',channel_names);
 end
 
-die
+
 
 
 %% "band pass" plots
 
-for chan = 1:nrchans
-    figures(sprintf('band_RMS_ch%d',chan)) = figure('name',sprintf('band_RMS_ch%d',chan));
+if(any(strcmp(settings.plots,'band_rms')) || plot_all)
+    for chan = 1:nrchans
+        for fbin = 1:(length(settings.freq_band_slice)-1)
+            bin_idxs = ff>=settings.freq_band_slice(fbin) & ff<(settings.freq_band_slice(fbin+1));
+            freq_slice(chan,fbin,:) = sum(psd_vib_disp(chan,bin_idxs,:),2);
+            freq_slice_legend{fbin} = sprintf('%dHz - %dHz',settings.freq_band_slice(fbin), settings.freq_band_slice(fbin+1));
+        end
     
-    for fbin = 1:(length(settings.freq_band_slice)-1)
-        bin_idxs = ff>=settings.freq_band_slice(fbin) & ff<(settings.freq_band_slice(fbin+1));
-        freq_slice(chan,fbin,:) = sum(psd_vib_disp(chan,bin_idxs,:),2);
-        freq_slice_legend{fbin} = sprintf('%dHz - %dHz',settings.freq_band_slice(fbin), settings.freq_band_slice(fbin+1));
-        
+        fig_name = sprintf('band_RMS_ch%d',chan);
+        figures(fig_name) = plot_timeseries_hist(...
+            acq_times_file, squeeze(freq_slice(chan,:,:)),...
+            'FigureName',fig_name,...
+            'YLabel',['Band-passed RMS displacement (nm), ',channel_names{chan}],...
+            'YScale','log',...
+            'Legend',freq_slice_legend);
     end
-     
-    semilogy(acq_times_file,squeeze(freq_slice(chan,:,:)));
-    ylabel(['Band-passed RMS displacement (nm), ',channel_names{chan}]);
-    legend(freq_slice_legend,'Location','NorthEastOutside');
-    grid on;
 end
+
+
+die
 
 %% "band pass" histograms
 

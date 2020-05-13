@@ -22,7 +22,9 @@ p = inputParser;
 
 addParameter(p,'FigureName','Figure',@ischar);
 addParameter(p,'YLabel','Y',@ischar);
+addParameter(p,'YScale','linear',@ischar);
 addParameter(p,'Legend',{''});
+
 
 parse(p,varargin{:});
 
@@ -47,7 +49,7 @@ grid on
 xlabel('Time');
 
 ylabel(opts.YLabel);
-legend(opts.Legend, 'EdgeColor','white','Color','white');
+%legend(opts.Legend, 'EdgeColor','white','Color','white';
     
 % histogram plot
 ax2 = subplot(1,3,3);
@@ -59,8 +61,16 @@ end
 
 xlabel('Probability density');
 
-ylabel(opts.YLabel);
-legend(opts.Legend, 'EdgeColor','white','Color','white');
+%ylabel(opts.YLabel);
+legend(opts.Legend, 'Location','NorthEast');
+
+if(strcmp(opts.YScale,'log'))
+    subplot(1,3,1:2);
+    set(gca, 'YScale', 'log')
+    
+    subplot(1,3,3);
+    set(gca, 'YScale', 'log')
+end
 
 linkaxes([ax1, ax2], 'y');
     

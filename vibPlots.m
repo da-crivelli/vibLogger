@@ -30,6 +30,8 @@
 %     integrated: integrated displacement
 %     vc_curves: VC curves / third octave plots
 %     band_rms: RMS by frequency band
+%     distributions_hourly: distribution by hour band of the day set (hour_slices)
+%     distributions_weekday: distributions by week day
 %
 %   Davide Crivelli
 %   davide.crivelli@diamond.ac.uk
@@ -152,7 +154,7 @@ end
 
 
 
-%% "band pass" plots
+%% 'band_rms': "band pass" plots
 
 if(any(strcmp(settings.plots,'band_rms')) || plot_all)
     for chan = 1:nrchans
@@ -172,108 +174,57 @@ if(any(strcmp(settings.plots,'band_rms')) || plot_all)
     end
 end
 
+%% 'distributions_hourly': by hour of day
 
-die
-
-%% "band pass" histograms
-
-for chan = 1:nrchans
-    figures(sprintf('band_hist_ch%d',chan)) = figure('name',sprintf('band_hist_ch%d',chan));
-    
-    for fbin = 1:(length(settings.freq_band_slice)-1)
-        [n,edges] = histcounts(freq_slice(chan,fbin,:));
+if(any(strcmp(settings.plots,'distributions_hourly')) || plot_all)
+    hourOfDay = hour(acq_times); 
+    for ch=1:nrchans
+        for hh=1:(length(settings.hour_slices)-1)
+            b = [settings.hour_slices(hh),settings.hour_slices(hh+1)]; %[start, end] of desired time bounds (24 hr format)
+            selectedTimes = hourOfDay >= b(1) & hourOfDay < b(2);
+            rms_bt = rms_disp(ch,:);
+            rms_bt(~selectedTimes) = NaN;
+            rms_bytime{hh} = rms_bt';
+            
+            hours_legend{hh} = sprintf('%d-%d hours (nm)',b(1),b(2));
+        end
         
-        patch([edges(1) edges(1:end-1) edges(end)], ...
-            repmat(settings.freq_band_slice(fbin),length(edges(1:end-1))+2,1), ...
-            [0 n 0], fbin);
-        hold on;
+        fig_name = sprintf('RMS_by_time_ch%d',ch);
+        figures(fig_name) = plot_prob_distribution(cell2mat(rms_bytime),...
+            'FigureName',fig_name,...
+            'YLabel',sprintf('RMS displacement  %s (nm)',channel_names{ch}),...
+            'Legend', hours_legend);
     end
-    set(gca,'xscale','log')
-    
-    %semilogy(acq_times_file,squeeze(freq_slice(chan,:,:)));
-    xlabel(['Band-passed RMS displacement (nm), ',channel_names{chan}]);
-    ylabel('Frequency (Hz)');
-    zlabel('Counts');    
-    legend(freq_slice_legend);
-    grid on;
-    view(-5, 45);
-    
 end
 
 
-%% by hour of day
+%% 'distributions_weekday': by weekday
 
-hourOfDay = hour(acq_times); 
-% Determine which time stamps are between each time slice
-
-figures('RMS_by_time') = figure('name','RMS by hour of day');
-
-for hh=1:(length(settings.hour_slices)-1)
-    subplot(length(settings.hour_slices)-1,1,hh)
-    b = [settings.hour_slices(hh),settings.hour_slices(hh+1)]; %[start, end] of desired time bounds (24 hr format)
-    selectedTimes = hourOfDay >= b(1) & hourOfDay <= b(2); 
-    % isolate all rows of timetable between desired time bounds
+if(any(strcmp(settings.plots,'distributions_weekday')) || plot_all)
+    dayOfWeek = weekday(acq_times);
     for ch=1:nrchans
-        histogram(rms_disp(ch,selectedTimes),'Normalization','pdf');
-        hold on;
+        for dd=1:7
+            selectedTimes = dayOfWeek == dd;
+            ld = acq_times(selectedTimes);
+            if(~isempty(ld))
+                [~,dname] = weekday(ld(1));
+            else
+                dname = 'n/a';
+            end
+            
+            rms_bd = rms_disp(ch,:);
+            rms_bd(~selectedTimes) = NaN;
+            rms_byday{dd} = rms_bd';
+            
+            days_legend{dd} = dname;%sprintf('%d-%d hours (nm)',b(1),b(2));
+        end
+        
+        fig_name = sprintf('RMS_by_weekday_ch%d',ch);
+        figures(fig_name) = plot_prob_distribution(cell2mat(rms_byday),...
+            'FigureName',fig_name,...
+            'YLabel',sprintf('RMS displacement  %s (nm)',channel_names{ch}),...
+            'Legend', days_legend);
     end
-    
-    a = ylim;
-    text(10,a(2)*0.85,sprintf('between %d-%d hours (nm)',b(1),b(2)),'HorizontalAlignment','center')
-    
-    if(hh==(length(settings.hour_slices)-1)); xlabel('RMS displacement'); end;
-    if(hh==2); ylabel('Probability density'); end;
-    xlim([0 xl_rms]);
-    if(hh==1); legend(channel_names); end;
-    
-    if(hh < (length(settings.hour_slices)-1)); set(gca,'XTick',[]); end;
-    
-    pos = get(gca, 'Position');
-    %pos(1) = 0.055;
-    pos(4) = 1/((length(settings.hour_slices)-1))-0.03;
-    set(gca, 'Position', pos)
-    grid on
-    
-end
-
-
-%% by weekday
-dayOfWeek = weekday(acq_times); 
-% Determine which time stamps are between each time slice
-
-figures('RMS_by_weekday') = figure('name','RMS by day of week');
-
-for dd=1:7
-    subplot(7,1,dd)
-    selectedTimes = dayOfWeek == dd;
-    
-    ld = acq_times(selectedTimes);
-    if(~isempty(ld))
-        [~,dname] = weekday(ld(1));
-    else
-        dname = 'n/a';
-    end
-    % isolate all rows of timetable between desired time bounds
-    for ch=1:nrchans
-        histogram(rms_disp(ch,selectedTimes),'Normalization','pdf');
-        hold on;
-    end
-    if(dd==7); xlabel('RMS displacement (nm)'); end;
-    if(dd==3); ylabel('Probability density'); end;
-    xlim([0 xl_rms]);
-    if(dd==1); legend(channel_names); end;
-    
-    if(dd < 7); set(gca,'XTick',[]); end;
-    
-    a = ylim;
-    text(10,a(2)*0.85,sprintf('On %s',dname),'HorizontalAlignment','center')
-    
-    pos = get(gca, 'Position');
-    %pos(1) = 0.055;
-    pos(4) = 1/7-0.03;
-    set(gca, 'Position', pos)
-    grid on
-    
 end
 
 %% transmissibility ratio plots if variables are set
@@ -283,7 +234,7 @@ end
 %            coher(iii,f,:) = transmiss_coh;
 
  
-
+die
 if(exist('inputs','var'))
 
     for in=1:length(inputs)

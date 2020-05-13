@@ -54,13 +54,23 @@ end
 
 fprintf('\n== Stats for %s ==\n',opts.YLabel);
 for c=1:nr_chans
-    h(c) = histogram(y(c,:),'Normalization','probability','EdgeColor','none');
-    hold on;
     
+    c_nan = isnan(y(c,:));
+    
+    h(c) = histogram(y(c,~c_nan),'Normalization','pdf','DisplayStyle','stairs');
+    hold on;
+
     % find the cumulate probability percent
-    cv = find(cumsum(h(c).Values)>opts.ProbThreshold,1);
-    prob(c) = h(c).BinEdges(cv);
+    cv = find(cumsum(h(c).Values.*h(c).BinWidth)>opts.ProbThreshold,1);
+    
+    if(~isempty(cv))
+        prob(c) = h(c).BinEdges(cv);
+    else
+        prob(c) = NaN;
+    end
+    
     fprintf('%0.2f%%, %s = %2.2f\n', opts.ProbThreshold*100, opts.Legend{c}, prob(c));
+       
     xl(c,:) = xlim();
 end
 
@@ -68,7 +78,7 @@ xlim([0 max(prob)]);
 grid on;
 
 xlabel(opts.YLabel);
-ylabel('Probability');
+ylabel('pdf');
 legend(opts.Legend,'EdgeColor','white','Color','white')
 
 %% probability charts

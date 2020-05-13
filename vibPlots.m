@@ -20,6 +20,8 @@
 %
 %     hour_slices (array of float, 0 to 24): hours slices for by-hour statistics plots
 %
+%     coherence_filter (float 0-1): value at which to filter coherence for
+%     highlighting in transmissibility plots
 %
 %   Available plots:
 %     all: all available plots
@@ -32,6 +34,7 @@
 %     band_rms: RMS by frequency band
 %     distributions_hourly: distribution by hour band of the day set (hour_slices)
 %     distributions_weekday: distributions by week day
+%     transmissibility: transmissibility ratio plots
 %
 %   Davide Crivelli
 %   davide.crivelli@diamond.ac.uk
@@ -229,56 +232,19 @@ end
 
 %% transmissibility ratio plots if variables are set
 
-%[transmiss_i, transmiss_freq, transmiss_coh] = modalfrf(data.data(:,inputs(iii)),data(:,outputs(iii)),data.fsamp,winlen);
-%            transmiss(iii,f,:) = transmiss_i;
-%            coher(iii,f,:) = transmiss_coh;
+if(any(strcmp(settings.plots,'transmissibility')) || plot_all)
+    if(exist('inputs','var'))
+        for in=1:length(inputs)
+            fig_name = sprintf('transmiss_%.0d_%.0d',inputs(in),outputs(in));
+            fig_title = sprintf('Transmissibility ratio, %s vs %s', ...
+                channel_names{inputs(in)},channel_names{outputs(in)});
 
- 
-die
-if(exist('inputs','var'))
-
-    for in=1:length(inputs)
-        ang = mean(squeeze(rad2deg(angle(transmiss(in,:,:))))); 
-
-        
-        
-        cohz = mean(squeeze(coher(in,:,:)));
-        trz = mean(abs(squeeze(transmiss(in,:,:))));
-        
-        coh_i = cohz > 0.2;
-        
-        trz(~coh_i)=NaN;
-        ang(~coh_i)=NaN;
-        cohz(~coh_i)=NaN;
-        
-        y_data = {trz, ang, cohz};
-
-        
-        
-        y_labels = {'Transmissibility ratio', 'Phase (deg)','Coherence'};
-
-        figures(sprintf('transmiss_%.0d_%.0d',inputs(in),outputs(in))) = ...
-            figure('name',sprintf('Transmissibility, %s to %s',channel_names{inputs(in)},channel_names{outputs(in)}));
-
-        for i=1:3
-            subplot(3,1,i);
-            if(i==1)
-                loglog(transmiss_freq,y_data{i});
-                fffg=gcf();
-                title(fffg.Name);
-            else
-                semilogx(transmiss_freq, y_data{i});
-            end
-            hold on;
-            grid on;
-            
-            if(i==1); plot(minmax(settings.freq_band_slice),[1 1],'--r'); end
-            ylabel(y_labels{i});
-            xlim(minmax(settings.freq_band_slice))
-            
-            if(i==3); xlabel('Frequency (Hz)'); end
-        end           
-            
+            figures(fig_name) = plot_transmissibility(transmiss_freq, ...
+                transmiss(in,:,:), coher(in,:,:), ...
+                'FigureName',fig_name, ...
+                'FigureTitle',fig_title,...
+                'CoherenceFilter',settings.coherence_filter);
+        end
     end
 end
 

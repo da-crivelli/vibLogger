@@ -6,6 +6,7 @@
 %   settings.
 %     processed_file (string): where the processed data was saved by vibAnalyzer
 %     SAVE_PLOTS (bool): whether to save all plots in .pdf and .png form
+%     SAVE_PDF (bool): if set to false, will only save a .png
 %     fg_output_folder (string): where to save the plot files
 %
 %     plots (cell of strings): which plots to show (see below)
@@ -61,6 +62,16 @@ if(any(strcmp(settings.plots,'all')))
     plot_all = true;
 else
     plot_all = false;
+end
+
+
+%% sets the "diary" file so that the output from some functions can be saved
+if(settings.SAVE_PLOTS)
+    diary_file = [settings.fg_output_folder,'stats.txt'];
+    if(exist(diary_file,'file'))
+        delete(diary_file);
+    end
+    diary(diary_file);
 end
 
 %% 'time': time driven data
@@ -269,17 +280,13 @@ if(settings.SAVE_PLOTS)
         set(fgr,'Units','Inches');
         pos = get(fgr,'Position');        
         set(fgr,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)])        
-        print(strcat(settings.fg_output_folder,fg_names{fg}),'-dpdf','-r0');
+        if(settings.SAVE_PDF)
+            print(strcat(settings.fg_output_folder,fg_names{fg}),'-dpdf','-r0');
+        end
         print(strcat(settings.fg_output_folder,fg_names{fg}),'-dpng','-r600');
     end
-
-    fid = fopen([settings.fg_output_folder,'stats.txt'],'w');
-    for ch=1:nrchans
-        fprintf(fid,'RMS 99 percent prob, %s \t %.2d\n',channel_names{ch},rms_prob(ch));
-        fprintf(fid,'P2P 99 percent prob, %s \t %.2d\n',channel_names{ch},p2p_prob(ch));
-    end
-    fclose(fid);
-
+    
+    diary off
 end
     
     

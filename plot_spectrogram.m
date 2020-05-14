@@ -39,7 +39,13 @@ ylabel(opts.YLabel);
 grid on;
 
 %% spectrogram
+
 ax2 = subplot(3,1,2:3);
+
+% extend the last data point so it can be shown on the image
+t(end+1) = x(end);
+psd(:,end+1) = psd(:,end);
+
 surf(t,f,psd,'EdgeColor','none');
 view(0,90);
 colormap(flipud(gray))

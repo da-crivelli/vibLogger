@@ -47,7 +47,11 @@ opts = p.Results;
 fig = figure('name',opts.FigureName);
 
 if(~(strcmp(opts.ProbChart,'none')))
-    subplot(2,nr_chans,1:2:nr_chans*2);
+    nr_cols = 3;
+    nr_rows = nr_chans;
+    plot_cells = reshape(1:3*nr_chans,[3 nr_chans])'
+    plot_cells(:,3) = [];
+    subplot(nr_rows,nr_cols,plot_cells(:));
 end
 
 %% histograms
@@ -57,7 +61,7 @@ for c=1:nr_chans
     
     c_nan = isnan(y(c,:));
     
-    h(c) = histogram(y(c,~c_nan),'Normalization','pdf','DisplayStyle','stairs');
+    h(c) = histogram(y(c,~c_nan),'Normalization','pdf','DisplayStyle','stairs','LineWidth',1);
     hold on;
 
     % find the cumulate probability percent
@@ -91,7 +95,7 @@ if(~(strcmp(opts.ProbChart,'none')))
     end
  
     for c=1:nr_chans
-        subplot(2,nr_chans,2*c);
+        subplot(nr_rows,nr_cols,3*c);
         probplot(pdist{c}, y(c,:));
         p = gca();
         p.Title.String = replace(p.Title.String,'Probability plot for','');

@@ -1,51 +1,40 @@
-%   VibAnalyzer
+%VIBANALYZER(settings) processes vibration data from VIBLOGGER
+%   
+%   VIBANALYZER(settings) runs the analysis code with settings specified
+%   in the settings structure. Parameters: (? denotes optional)
 %
-%   processes vibration data logged by VibLogger
+%   settings.
+%     data_folder (string): folder where data was saved by vibLogger
+%     output_file (string): .mat file where to save the processed data
+%     ? nrfiles (int): number of files to analyse. If not found, will process all files.
+%
+%     RESET_PROCESSED (bool): resets the output_file data
+%     CHECK_PLOTS (bool): plots for debugging. Use with caution
+%
+%     // frequency and data integration related stuff
+%     nrchunks (int): number of chunks to split data into before integration
+%     nrwindows (int): number of windows for transmissibility ratio
+%
+%     fcut (float): lowpass cutoff frequency in Hz
+%     spectrogram_freqs (array of float): spectral lines for spectrograms
+%
+%     is_velo (bool): set to TRUE if the measurements are already in velocity. 
+%
+%     // third octave band analysis config
+%     octave_opts: options for octave analysis
+%                  example: {'FrequencyLimits',[3.15 500],'BandsPerOctave',3}
+%
 %
 %   Davide Crivelli
 %   davide.crivelli@diamond.ac.uk
 %
-%   v0.1 20200113 - initial release
-%   
+%   For details and usage see https://gitlab.diamond.ac.uk/mca67379/viblogger 
+%
+%  see also: VIBLOGGER, VIBPLOTS, SENSORS_DB
 
-clearvars
-close all
-close all hidden
+function vibAnalyzer(settings)
 
-addpath('C:\Users\mca67379\OneDrive - Diamond Light Source Ltd\Matlab');
-
-data_folder = '20200311_Mirror_I19_NoTMD';
-processed_file = 'Processed\20200311_Mirror_I19_NoTMD.mat';
-
-%nrchunks = 240;  %number of chunks to split data before integration
-nrchunks = 3;  %number of chunks to split data before integration
-
-%fcut = 250; %Hz, cutoff frequency
-fcut = 600; %Hz, cutoff frequency
-f_lo = 3; %Hz, high pass cutoff
-
-is_velo = false;    % set to TRUE if the measurements are already in velocity. 
-                    % FALSE means it's acceleration.
-
-spectrogram_freqs = 1:0.1:500;
-%spectrogram_freqs = 1:1:50;
-
-% third octave band analysis config
-octave_band = [3.15 500];
-%octave_band = [3.15 50];
-
-bpo = 3;
-opts = {'FrequencyLimits',octave_band,'BandsPerOctave',bpo};
-
-
-%nrfiles = 1440;   %comment out to do all files
-
-RESET_PROCESSED = true; % reset the processed_file data
-CHECK_PLOTS = true; % plots some debugging stuff. warning: "TRUE" may crash everything if there's lots of files
-
-% load sensor calibration and channel names
-
-run(strcat(data_folder,filesep,'config.m'));
+run(strcat(settings.data_folder,filesep,'config.m'));
 
 % check for legacy configuration and throw warning
 if(exist('conv_factor','var'))
@@ -55,12 +44,8 @@ else
     conv_factor = sensors_db(sensor_ids);
 end
 
-
-
-nrwindows = 30; % number of windows for transmissibility ratio
-
 %% process files one by one
-files = ls([data_folder,filesep,'*.mat']);
+files = ls([settings.data_folder,filesep,'*.mat']);
 
 rms_disp = [];
 integr_disp = [];
@@ -73,15 +58,15 @@ acq_times_file = [];
 %p2p_disp_v2 = [];
 psd_vib_disp = [];
 
-if(~exist('nrfiles','var'))
+if(~isfield(settings,'nrfiles'))
     nrfiles = size(files,1);
 end
 
-if(not(RESET_PROCESSED) && exist(processed_file,'file'))
-    load(processed_file);
+if(not(settings.RESET_PROCESSED) && exist(settings.processed_file,'file'))
+    load(settings.processed_file);
 end
 
-if(is_velo)
+if(settings.is_velo)
     warning('Data is set to be interpreted as velocity. Check this is intended.');
 end
 
@@ -97,7 +82,7 @@ wb = waitbar(0,sprintf('Processing file %.0d of %.0d',0,nrfiles));
 for f=f_zero:nrfiles
     waitbar(f/nrfiles,wb,sprintf('Processing file %.0d of %.0d',f,nrfiles));
     
-    data = load(strcat(data_folder,filesep,files(f,:)));
+    data = load(strcat(settings.data_folder,filesep,files(f,:)));
     
     % first - remove DC offsets
     y = detrend(data.data);
@@ -112,7 +97,7 @@ for f=f_zero:nrfiles
             if(exist('lowpass_filter','var'))
                 y1 = lowpass_filter.filter(y(:,chan));
             else
-                [y1, lowpass_filter] = lowpass(y(:,chan),fcut,data.fsamp);
+                [y1, lowpass_filter] = lowpass(y(:,chan),settings.fcut,data.fsamp);
             end
         end
         
@@ -120,12 +105,12 @@ for f=f_zero:nrfiles
         
         % if reshape fails, we need to pad the matrix's end
         try
-            accel = reshape(y1,[],nrchunks);
+            accel = reshape(y1,[],settings.nrchunks);
         catch reshape_err
             if (strcmp(reshape_err.identifier,'MATLAB:getReshapeDims:notDivisible'))
-                padsize = ceil(size(y1,1)/nrchunks)*nrchunks - size(y1,1); % find the number of zeros needed to pad on the end
+                padsize = ceil(size(y1,1)/settings.nrchunks)*settings.nrchunks - size(y1,1); % find the number of zeros needed to pad on the end
                 y1 = padarray(y1,padsize,0,'post');
-                accel = reshape(y1,[],nrchunks);
+                accel = reshape(y1,[],settings.nrchunks);
             else
                 rethrow(reshape_err)
             end
@@ -133,7 +118,7 @@ for f=f_zero:nrfiles
         
         % transform accel into displacement    
         
-        if(~is_velo)
+        if(~settings.is_velo)
             velo = velo2disp(y1,1/data.fsamp);
         else
             velo = y1;
@@ -142,7 +127,7 @@ for f=f_zero:nrfiles
         disp = velo2disp(velo,1/data.fsamp);
         
         % velocity octave spectrum in um/s
-        [p,cf] = poctave(velo./1e03,data.fsamp,opts{:});
+        [p,cf] = poctave(velo./1e03,data.fsamp,settings.octave_opts{:});
 
         velo_octave_spec(chan,:,f) = p;
         
@@ -152,7 +137,7 @@ for f=f_zero:nrfiles
         
         
         % calculate RMS via integrated FFT
-        if(~is_velo)
+        if(~settings.is_velo)
             [integr, ff, spec_disp, rms_disp_ff] = fft_integrated_accel2disp(accel, data.fsamp);
         else
             [integr, ff, spec_disp, rms_disp_ff] = fft_integrated_accel2disp(accel, data.fsamp,'velocity');
@@ -163,14 +148,14 @@ for f=f_zero:nrfiles
         p2p_disp_chunk(chan,:) = 2*max(integr');
         
         % calculate spectra
-        [pxx, freq] = pwelch(y1,ones(1,length(y1)),1,spectrogram_freqs,data.fsamp);
+        [pxx, freq] = pwelch(y1,ones(1,length(y1)),1,settings.spectrogram_freqs,data.fsamp);
         
         psd_vib_block(chan,:) = pxx;
         
         psd_vib_block_disp(chan, :) = mean(spec_disp);
         
         % debug plots
-        if CHECK_PLOTS
+        if settings.CHECK_PLOTS
             figure();
             subplot(3,2,1);
             plot(accel);
@@ -204,7 +189,7 @@ for f=f_zero:nrfiles
     %p2p_disp_v2 = cat(2,p2p_disp_v2,p2p_disp_chunk);
     
     % acquisition times
-    acq_t = data.acq_date:duration(0,0,data.recording_time/nrchunks):data.acq_date+duration(0,0,data.recording_time);
+    acq_t = data.acq_date:duration(0,0,data.recording_time/settings.nrchunks):data.acq_date+duration(0,0,data.recording_time);
     acq_times = cat(2,acq_times,acq_t(1:end-1));
     acq_times_file = [acq_times_file, data.acq_date];
     
@@ -212,7 +197,7 @@ for f=f_zero:nrfiles
     % transmissibility ratio (if the file has a "input" and "output"
     % parameter
     if(exist('inputs','var'))
-        winlen = length(data.data(:,inputs(1)))/nrwindows;
+        winlen = length(data.data(:,inputs(1)))/settings.nrwindows;
         for iii=1:length(inputs)
             [transmiss_i, transmiss_freq, transmiss_coh] = ...
                 modalfrf(data.data(:,inputs(iii)),data.data(:,outputs(iii)),data.fsamp,winlen,'Sensor','dis');
@@ -222,13 +207,16 @@ for f=f_zero:nrfiles
     end
 end
 
-save(processed_file,'acq_times',...
+save(settings.output_file,'acq_times',...
     'integr_disp','rms_disp','p2p_disp','f',...
-    'psd_vib','freq','acq_times_file','psd_vib_disp','ff','nrchunks',...
+    'psd_vib','freq','acq_times_file','psd_vib_disp','ff',...
     'velo_octave_spec','cf',...
-    'channel_names');
+    'channel_names','settings');
 
 if(exist('inputs','var'))
-    save(processed_file, 'transmiss', 'coher', 'transmiss_freq','inputs','outputs',...
+    save(settings.output_file, 'transmiss', 'coher', 'transmiss_freq','inputs','outputs',...
         '-append');
+end
+
+
 end

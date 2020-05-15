@@ -1,6 +1,7 @@
 # vibLogger
 
-Vibration data logger and analysis tools
+Vibration data logger and analysis tools.
+All the examples below are also available under the Examples folder as .m files.
 
 ## Logging data
 To log data you need to call `vibLogger()` with a few configuration parameters. 
@@ -62,17 +63,17 @@ addpath('\\dc.diamond.ac.uk\dls\science\users\mca67379\MATLAB\vibLogger');
 settings = struct();
 
 %% files and file processing
-settings.data_folder = '20200317_Office_Tests'; %where data was saved by vibLogger
-settings.output_file = '20200317_Office_Tests_Results.mat'; % where to save the processed data file
+settings.data_folder = '20200210_R79_FloorToSextupole'; %where data was saved by vibAnalyzer
+settings.output_file = '20200317_freq_1.mat'; % where to save the processed data file
 
 %settings.nrfiles = 10;  % number of files to analyse. Comment out to process all files.
 
 settings.RESET_PROCESSED = true; % reset the output_file data
-settings.CHECK_PLOTS = false; % plots some debugging plots. warning: "TRUE" 
+settings.CHECK_PLOTS = true; % plots some debugging plots. warning: "TRUE" 
                     % may just crash Matlab if there's a lot of files
 
 %% frequency and data integration related stuff
-settings.nrchunks = 3;  %number of chunks to split data before integration
+settings.nrchunks = 11;  %number of chunks to split data before integration
 settings.nrwindows = 30; % number of windows for transmissibility ratio
 
 settings.fcut = 600; % Hz, lowpass cutoff frequency
@@ -109,34 +110,34 @@ addpath('\\dc.diamond.ac.uk\dls\science\users\mca67379\MATLAB\vibLogger');
 settings = struct();
 
 %where the processed data was saved by vibAnalyzer
-settings.processed_file = '20200317_Office_Tests_Results.mat'; 
+settings.processed_file = '20200317_freq_2.mat'; 
 
 %where to save the figures (if SAVE_PLOTS is true)
-settings.fg_output_folder = 'Plots\office_tests\';
+settings.fg_output_folder = 'Plots\new_plots_test\';
 settings.SAVE_PLOTS = false;
+settings.SAVE_PDF = false;
 
 % probability plot params
-settings.rms_probplot_cutoff = 100000;  %cutoff value for probability plot, nm
-settings.p2p_probplot_cutoff = 1000000;
+settings.prob_chart_distribution = 'LogNormal';
+settings.prob_threshold = 0.99;
 
-% third_oct_bands_ctr = 10.^(0.1:0.1:2);   % BS ISO 266-1997
-%fd = 10^0.05;
+%settings.plots = {'all'};
+settings.plots = {'integrated'};
 
+settings.integrated_direction = 'increasing';
+
+settings.coherence_filter = 0.2;
 
 % sets bands for band-passed RMS plots
-settings.freq_band_slice = 0:5:50;
+settings.freq_band_slice = 0:10:50;
 settings.freq_band_slice(1) = 1;
 
-% VC levels for VC curves (should not need changing)
-settings.vc_curves = [0.78 0.39 0.195 0.097 0.048 0.024 0.012];
-settings.vc_labels = {'VC-G','VC-H','VC-I','VC-J','VC-K','VC-L','VC-M'};
-
 % hours slices for by-hour statistics plots
-settings.hour_slices = [0 3 4 7 16 20 24];
-
+%settings.hour_slices = [0 3 4 7 16 20 24];
+settings.hour_slices = [0 3 8 16 24];
 
 
 %% run the plotter
-vibPlotter(settings);
+vibPlots(settings);
 
 ```

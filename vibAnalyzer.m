@@ -118,7 +118,7 @@ for f=f_zero:nrfiles
         
         % transform accel into displacement    
         
-        if(~is_velo)
+        if(~settings.is_velo)
             velo = velo2disp(y1,1/data.fsamp);
         else
             velo = y1;
@@ -137,7 +137,7 @@ for f=f_zero:nrfiles
         
         
         % calculate RMS via integrated FFT
-        if(~is_velo)
+        if(~settings.is_velo)
             [integr, ff, spec_disp, rms_disp_ff] = fft_integrated_accel2disp(accel, data.fsamp);
         else
             [integr, ff, spec_disp, rms_disp_ff] = fft_integrated_accel2disp(accel, data.fsamp,'velocity');
@@ -155,7 +155,7 @@ for f=f_zero:nrfiles
         psd_vib_block_disp(chan, :) = mean(spec_disp);
         
         % debug plots
-        if CHECK_PLOTS
+        if settings.CHECK_PLOTS
             figure();
             subplot(3,2,1);
             plot(accel);
@@ -207,14 +207,14 @@ for f=f_zero:nrfiles
     end
 end
 
-save(processed_file,'acq_times',...
+save(settings.output_file,'acq_times',...
     'integr_disp','rms_disp','p2p_disp','f',...
     'psd_vib','freq','acq_times_file','psd_vib_disp','ff',...
     'velo_octave_spec','cf',...
     'channel_names','settings');
 
 if(exist('inputs','var'))
-    save(processed_file, 'transmiss', 'coher', 'transmiss_freq','inputs','outputs',...
+    save(settings.output_file, 'transmiss', 'coher', 'transmiss_freq','inputs','outputs',...
         '-append');
 end
 

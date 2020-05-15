@@ -45,11 +45,11 @@
 %   see also VIBLOGGER, VIBANALYZER, SENSORS_DB
 
 
-function vibPlots(settings)
+function vibPlots(opts)
 
 
 %% variable prep and config
-load(settings.processed_file);  
+load(opts.processed_file);  
 nrchans = size(rms_disp,1);
 
 % are these needed at all?
@@ -58,7 +58,7 @@ nrchans = size(rms_disp,1);
 
 figures = containers.Map;
 
-if(any(strcmp(settings.plots,'all')))
+if(any(strcmp(opts.plots,'all')))
     plot_all = true;
 else
     plot_all = false;
@@ -66,8 +66,8 @@ end
 
 
 %% sets the "diary" file so that the output from some functions can be saved
-if(settings.SAVE_PLOTS)
-    diary_file = [settings.fg_output_folder,'stats.txt'];
+if(opts.SAVE_PLOTS)
+    diary_file = [opts.fg_output_folder,'stats.txt'];
     if(exist(diary_file,'file'))
         delete(diary_file);
     end
@@ -76,7 +76,7 @@ end
 
 %% 'time': time driven data
 
-if(any(strcmp(settings.plots,'time')) || plot_all)
+if(any(strcmp(opts.plots,'time')) || plot_all)
     figures('rms_t') = plot_timeseries_hist(acq_times, rms_disp, ...
         'FigureName','RMS of vibration over time',...
         'YLabel','RMS [nm] from FFT',...
@@ -90,25 +90,25 @@ end
 
 
 %% 'distributions': stats & distributions
-if(any(strcmp(settings.plots,'distributions')) || plot_all)
+if(any(strcmp(opts.plots,'distributions')) || plot_all)
     figures('distributions_RMS') = plot_prob_distribution(rms_disp, ...
         'FigureName', 'RMS distribution', ...
         'YLabel', 'RMS displacement [nm]', ...
         'Legend', channel_names, ...
-        'ProbChart', settings.prob_chart_distribution, ...
-        'ProbThreshold', settings.prob_threshold);
+        'ProbChart', opts.prob_chart_distribution, ...
+        'ProbThreshold', opts.prob_threshold);
 
     figures('distributions_P2P') = plot_prob_distribution(p2p_disp, ...
         'FigureName', 'P2P distribution', ...
         'YLabel', 'P2P displacement [nm]', ...
         'Legend', channel_names, ...
-        'ProbChart', settings.prob_chart_distribution, ...
-        'ProbThreshold', settings.prob_threshold);
+        'ProbChart', opts.prob_chart_distribution, ...
+        'ProbThreshold', opts.prob_threshold);
 end
 
 %% 'spectrograms': spectrogram of acceleration & displacement
 
-if(any(strcmp(settings.plots,'spectrograms')) || plot_all)
+if(any(strcmp(opts.plots,'spectrograms')) || plot_all)
     for ch=1:nrchans
         figures(sprintf('PSD_accel_ch%d',ch)) = plot_spectrogram(acq_times, rms_disp(ch,:),...
             acq_times_file,freq,squeeze(10*log10(psd_vib(ch,:,:))), ...
@@ -130,7 +130,7 @@ end
 
 %% 'psd': mean PSD - accel and displacement
 
-if(any(strcmp(settings.plots,'psd')) || plot_all)
+if(any(strcmp(opts.plots,'psd')) || plot_all)
     figures('mean_accel_PSD') = plot_psd(freq, squeeze(mean(psd_vib,3)),...
         'FigureName','mean_accel_PSD',...
         'YLabel','Acceleration power (eu)',...
@@ -147,18 +147,18 @@ end
 
 %% 'integrated': integrated displacement
 
-if(any(strcmp(settings.plots,'integrated')) || plot_all)
+if(any(strcmp(opts.plots,'integrated')) || plot_all)
     figures('integrated_disp') = plot_integrated(ff, psd_vib_disp, ...
         'FigureName','integrated_disp',...
-        'YLabel','Integrated displacement (nm)',...
+        'YLabel','Integrated displacement (nm), peak',...
         'Legend',channel_names, ...
-        'Direction',settings.integrated_direction);
+        'Direction',opts.integrated_direction);
 end
 
 
 %% 'vc_curves': VC curves / third octave plots
 
-if(any(strcmp(settings.plots,'vc_curves')) || plot_all)
+if(any(strcmp(opts.plots,'vc_curves')) || plot_all)
     figures('VC_curves') = plot_vc_curves(cf, velo_octave_spec, ...
         'FigureName','VC_curves',...
         'YLabel','RMS velocity (dB re 1 um/s)',...
@@ -170,12 +170,12 @@ end
 
 %% 'band_rms': "band pass" plots
 
-if(any(strcmp(settings.plots,'band_rms')) || plot_all)
+if(any(strcmp(opts.plots,'band_rms')) || plot_all)
     for chan = 1:nrchans
-        for fbin = 1:(length(settings.freq_band_slice)-1)
-            bin_idxs = ff>=settings.freq_band_slice(fbin) & ff<(settings.freq_band_slice(fbin+1));
+        for fbin = 1:(length(opts.freq_band_slice)-1)
+            bin_idxs = ff>=opts.freq_band_slice(fbin) & ff<(opts.freq_band_slice(fbin+1));
             freq_slice(chan,fbin,:) = sum(psd_vib_disp(chan,bin_idxs,:),2);
-            freq_slice_legend{fbin} = sprintf('%dHz - %dHz',settings.freq_band_slice(fbin), settings.freq_band_slice(fbin+1));
+            freq_slice_legend{fbin} = sprintf('%dHz - %dHz',opts.freq_band_slice(fbin), opts.freq_band_slice(fbin+1));
         end
     
         fig_name = sprintf('band_RMS_ch%d',chan);
@@ -190,11 +190,11 @@ end
 
 %% 'distributions_hourly': by hour of day
 
-if(any(strcmp(settings.plots,'distributions_hourly')) || plot_all)
+if(any(strcmp(opts.plots,'distributions_hourly')) || plot_all)
     hourOfDay = hour(acq_times); 
     for ch=1:nrchans
-        for hh=1:(length(settings.hour_slices)-1)
-            b = [settings.hour_slices(hh),settings.hour_slices(hh+1)]; %[start, end] of desired time bounds (24 hr format)
+        for hh=1:(length(opts.hour_slices)-1)
+            b = [opts.hour_slices(hh),opts.hour_slices(hh+1)]; %[start, end] of desired time bounds (24 hr format)
             selectedTimes = hourOfDay >= b(1) & hourOfDay < b(2);
             rms_bt = rms_disp(ch,:);
             rms_bt(~selectedTimes) = NaN;
@@ -214,7 +214,7 @@ end
 
 %% 'distributions_weekday': by weekday
 
-if(any(strcmp(settings.plots,'distributions_weekday')) || plot_all)
+if(any(strcmp(opts.plots,'distributions_weekday')) || plot_all)
     dayOfWeek = weekday(acq_times);
     for ch=1:nrchans
         for dd=1:7
@@ -243,7 +243,7 @@ end
 
 %% transmissibility ratio plots if variables are set
 
-if(any(strcmp(settings.plots,'transmissibility')) || plot_all)
+if(any(strcmp(opts.plots,'transmissibility')) || plot_all)
     if(exist('inputs','var'))
         for in=1:length(inputs)
             fig_name = sprintf('transmiss_%.0d_%.0d',inputs(in),outputs(in));
@@ -254,17 +254,17 @@ if(any(strcmp(settings.plots,'transmissibility')) || plot_all)
                 transmiss(in,:,:), coher(in,:,:), ...
                 'FigureName',fig_name, ...
                 'FigureTitle',fig_title,...
-                'CoherenceFilter',settings.coherence_filter);
+                'CoherenceFilter',opts.coherence_filter);
         end
     end
 end
 
 %% figure setup and printing
-if(settings.SAVE_PLOTS)
+if(opts.SAVE_PLOTS)
     fg_names = figures.keys;
     
-    if(~exist(settings.fg_output_folder,'dir'))
-        mkdir(settings.fg_output_folder);
+    if(~exist(opts.fg_output_folder,'dir'))
+        mkdir(opts.fg_output_folder);
     end
     
     for fg=1:length(figures)
@@ -280,10 +280,10 @@ if(settings.SAVE_PLOTS)
         set(fgr,'Units','Inches');
         pos = get(fgr,'Position');        
         set(fgr,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)])        
-        if(settings.SAVE_PDF)
-            print(strcat(settings.fg_output_folder,fg_names{fg}),'-dpdf','-r0');
+        if(opts.SAVE_PDF)
+            print(strcat(opts.fg_output_folder,fg_names{fg}),'-dpdf','-r0');
         end
-        print(strcat(settings.fg_output_folder,fg_names{fg}),'-dpng','-r600');
+        print(strcat(opts.fg_output_folder,fg_names{fg}),'-dpng','-r600');
     end
     
     diary off

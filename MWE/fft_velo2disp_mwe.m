@@ -3,7 +3,7 @@
 clearvars
 close all
 
-addpath('C:\Users\mca67379\OneDrive - Diamond Light Source Ltd\Matlab');
+addpath('\\dc.diamond.ac.uk\dls\science\users\mca67379\MATLAB\vibLogger');
 
 fsamp = 10000;
 
@@ -12,7 +12,8 @@ fsamp = 10000;
 
 amps = [1000 1000 1000];
 freqs = [10 20 50];
-
+%amps = 1000
+%freqs = 10
 
 
 noise = 0.0;

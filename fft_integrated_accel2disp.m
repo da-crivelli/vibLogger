@@ -45,7 +45,8 @@ function [integr, freq, spec_disp, rms_disp] = fft_integrated_accel2disp(data, f
     end
     
     spec_disp(:,1:2) = 0;
-    integr = sqrt((cumsum(spec_disp,2).^2));
+    %integr = sqrt((cumsum(spec_disp,2).^2));
+    integr = cumsum(spec_disp,2);
     
      
     

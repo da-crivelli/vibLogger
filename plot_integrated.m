@@ -52,18 +52,18 @@ fig = figure('name',opts.FigureName);
 
 if(strcmp(opts.Direction, 'increasing'))
     loc = 'SouthEast';
-    ff = f(2:end);
+    %ff = f(2:end);
 else
     loc = 'NorthEast';
-    ff = f(1:end-1);
+    %ff = f(1:end-1);
 end
 
 for ch=1:nr_chans
     subplot(1,nr_chans,ch);
-    h = semilogx(ff,integr_avg(ch,:),'linewidth',2);
+    h = semilogx(f,integr_avg(ch,:),'linewidth',2);
     hold on;
-    semilogx(ff,integr_max(ch,:),'--','Color',get(h,'color'));
-    semilogx(ff,integr_min(ch,:),':','Color',get(h,'color'));
+    semilogx(f,integr_max(ch,:),'--','Color',get(h,'color'));
+    semilogx(f,integr_min(ch,:),':','Color',get(h,'color'));
     title(opts.Legend{ch});
     xlabel('Frequency (Hz)');
     if(ch==1); ylabel(opts.YLabel); end
@@ -84,12 +84,11 @@ end
 
 %% integrated displacement calculation function (from PSD)
 function integrated = calc_integrated(f, psd, direction)
-    cs = sqrt((cumsum(psd,1).^2));
-    integrated = cs(:,2:end).*diff(f);
     if(isempty(direction))
-        integrated = cumsum(integrated,2);
+        cs = (cumsum(psd,2));
     else
-        integrated = cumsum(integrated,2, direction);
-    end
+        cs = (cumsum(psd,2,direction));
+    end    
+    integrated = cs;   
 end
 

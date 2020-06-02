@@ -37,6 +37,11 @@
 
 function vibLogger(settings)
 
+    if(~exist(strcat(settings.output_folder,filesep,'config.m'),'file'))
+        % autowrite config file
+        create_vib_config_file(strcat(settings.output_folder,filesep,'config.m'),settings); 
+    end
+
     % create session & initialise device
     s = daq.createSession('ni');
 
@@ -88,12 +93,6 @@ function vibLogger(settings)
         end
     end
 
-    if(~exist(strcat(settings.output_folder,filesep,'config.m'),'file'))
-        
-        % autowrite config file
-        create_vib_config_file(strcat(settings.output_folder,filesep,'config.m'),settings);
-        
-    end
 end
 
 

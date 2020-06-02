@@ -60,6 +60,8 @@ psd_vib_disp = [];
 
 if(~isfield(settings,'nrfiles'))
     nrfiles = size(files,1);
+else
+    nrfiles = settings.nrfiles;
 end
 
 if(not(settings.RESET_PROCESSED) && exist(settings.processed_file,'file'))

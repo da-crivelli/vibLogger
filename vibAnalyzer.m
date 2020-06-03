@@ -64,8 +64,8 @@ else
     nrfiles = settings.nrfiles;
 end
 
-if(not(settings.RESET_PROCESSED) && exist(settings.processed_file,'file'))
-    load(settings.processed_file);
+if(not(settings.RESET_PROCESSED) && exist([settings.output_file,'.mat'],'file'))
+    load(settings.output_file);
 end
 
 if(settings.is_velo)

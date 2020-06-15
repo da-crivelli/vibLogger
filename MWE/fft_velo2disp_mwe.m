@@ -37,7 +37,7 @@ accel_signal = accel_signal + noise.*rand(size(time));
 disp_signal_ideal = zeros(size(time));
 
 for i = 1:length(freqs)
-    disp_signal_ideal = disp_signal_ideal + (amps(i))/(4*pi^2*(freqs(i))^2).*sin(2*pi*freqs(i).*time + pi);
+    disp_signal_ideal = disp_signal_ideal - (amps(i))/((2*pi*freqs(i))^2).*sin(2*pi*freqs(i).*time);
 end
 
 [integr_disp_ideal, freq_disp_ideal, spec_disp_ideal] = integrated_spectrum(disp_signal_ideal', fsamp);

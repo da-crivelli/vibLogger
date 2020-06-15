@@ -49,7 +49,7 @@ fig = figure('name',opts.FigureName);
 if(~(strcmp(opts.ProbChart,'none')))
     nr_cols = 3;
     nr_rows = nr_chans;
-    plot_cells = reshape(1:3*nr_chans,[3 nr_chans])'
+    plot_cells = reshape(1:3*nr_chans,[3 nr_chans])';
     plot_cells(:,3) = [];
     subplot(nr_rows,nr_cols,plot_cells(:));
 end

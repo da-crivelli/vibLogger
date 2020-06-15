@@ -28,12 +28,14 @@ function [integr, freq, spec_disp, rms_disp] = fft_integrated_accel2disp(data, f
 
     L = size(data,1);
     data = data - mean(data);
-    
-    Y = fft(data);
-    
-    spec = 2*abs(Y(1:floor(L/2),:)/L);
-    freq = fsamp*(0:(floor(L/2)-1))/L;
 
+    % calculate FFT of acceleration
+    Y = fft(data);
+   
+    spec = 2*abs(Y(2:floor(L/2),:)/L);
+    freq = fsamp*(1:(floor(L/2)-1))/L;
+
+    % convert acceleration to displacement (or velocity to displacement)
     if(exist('mode','var'))
         if(mode == 'velocity')
             spec_disp = spec' ./ (2*pi.*freq);
@@ -44,13 +46,11 @@ function [integr, freq, spec_disp, rms_disp] = fft_integrated_accel2disp(data, f
         spec_disp = spec' ./ ((2*pi.*freq).^2);
     end
     
-    spec_disp(:,1:2) = 0;
-    %integr = sqrt((cumsum(spec_disp,2).^2));
-    integr = cumsum(spec_disp,2);
+    % integrate the displacement
+    integr = sqrt((cumsum(0.5*spec_disp.^2,2)));
     
-     
-    
-	rms_disp = sqrt(sum((sqrt(2)/2*spec_disp').^2)); 
+    % RMS is the total sum of integrated displacement (or, end point)
+    rms_disp = integr(end);
     
 end
 

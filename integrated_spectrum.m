@@ -19,10 +19,10 @@ function [integr, freq, spec] = integrated_spectrum(data, fsamp)
     L = size(data,1);
     Y = fft(data)/L;
     
-    spec = 2*abs(Y(1:floor(L/2),:));
-    freq = fsamp*(0:(floor(L/2)-1))/L;
+    spec = 2*abs(Y(2:floor(L/2),:));
+    freq = fsamp*(1:(floor(L/2)-1))/L;
 
-    integr = sqrt((cumsum(spec).^2));
+    integr = sqrt(cumsum(0.5*spec.^2));
 
 end
 

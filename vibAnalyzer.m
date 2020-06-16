@@ -97,9 +97,11 @@ for f=f_zero:nrfiles
         % lowpass filter
         if(true)
             if(exist('lowpass_filter','var'))
-                y1 = lowpass_filter.filter(y(:,chan));
+                 %y1 = lowpass_filter.filter(y(:,chan));
+                 y1 = y(:,chan);
             else
-                [y1, lowpass_filter] = lowpass(y(:,chan),settings.fcut,data.fsamp);
+                %[y1, lowpass_filter] = lowpass(y(:,chan),settings.fcut,data.fsamp);
+                y1 = y(:,chan);
             end
         end
         
@@ -147,10 +149,10 @@ for f=f_zero:nrfiles
         
         integr_disp_chunk(chan,:) = mean(integr);
         rms_disp_chunk(chan,:) = rms_disp_ff;
-        p2p_disp_chunk(chan,:) = 2*max(integr');
+        p2p_disp_chunk(chan,:) = 2*sqrt(2)*max(integr');
         
         % calculate spectra
-        [pxx, freq] = pwelch(y1,ones(1,length(y1)),1,settings.spectrogram_freqs,data.fsamp);
+        [pxx, freq] = pwelch(y1,[],1,settings.spectrogram_freqs,data.fsamp);
         
         psd_vib_block(chan,:) = pxx;
         

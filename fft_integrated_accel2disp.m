@@ -1,4 +1,4 @@
-function [integr, freq, spec_disp, rms_disp] = fft_integrated_accel2disp(data, fsamp, mode)
+function [integr, freq, spec_disp, rms_disp] = fft_integrated_accel2disp(data, fsamp, mode, direction)
 %FFT_INTEGRATED_ACCEL2DISP converts acceleration input data into displacement FFT
 %   [integr, freq, spec, rms_disp] = FFT_INTEGRATED_ACCEL2DISP(accel_data) returns the integrated
 %   displacement fft from acceleration data, for each channel.
@@ -26,8 +26,12 @@ function [integr, freq, spec_disp, rms_disp] = fft_integrated_accel2disp(data, f
 %   v0.1 20200206 - initial release
 %
 
+    if(~exist('direction','var'))
+        direction = 'forward';
+    end
+    
     L = size(data,1);
-    data = data - mean(data);
+    %data = data - mean(data);
 
     % calculate FFT of acceleration
     Y = fft(data);
@@ -47,10 +51,9 @@ function [integr, freq, spec_disp, rms_disp] = fft_integrated_accel2disp(data, f
     end
     
     % integrate the displacement
-    integr = sqrt((cumsum(0.5*spec_disp.^2,2)));
-    
+    integr = sqrt( cumsum( 0.5 .* ( spec_disp ).^2 ,2,direction) );
+ 
     % RMS is the total sum of integrated displacement (or, end point)
-    rms_disp = integr(end);
+    rms_disp = integr(:,end);
     
 end
-

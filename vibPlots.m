@@ -64,7 +64,6 @@ else
     plot_all = false;
 end
 
-
 %% sets the "diary" file so that the output from some functions can be saved
 if(opts.SAVE_PLOTS)
     diary_file = [opts.fg_output_folder,'stats.txt'];
@@ -148,7 +147,7 @@ end
 %% 'integrated': integrated displacement
 
 if(any(strcmp(opts.plots,'integrated')) || plot_all)
-    figures('integrated_disp') = plot_integrated(ff, psd_vib_disp, ...
+    figures('integrated_disp') = plot_integrated(ff, integr_disp, ...
         'FigureName','integrated_disp',...
         'YLabel','Integrated displacement (nm), peak',...
         'Legend',channel_names, ...

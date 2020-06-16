@@ -1,14 +1,14 @@
-function fig = plot_integrated(f, psd, varargin)
-%PLOT_INTEGRATED plots the integrated displacement plot from a
-%displacement PSD.
+function fig = plot_integrated(f, integr_disp, varargin)
+%PLOT_INTEGRATED plots the integrated displacement plot from
+%integrated displacement data.
 %   PLOT_INTEGRATED(f, psd) calculates and plots the integrated
-%   displacement from the psd (as input).
+%   displacement from the integr_disp (as input).
 %   the PSD matrix is a CxFxN matrix (channels, frequency, set) and is
 %   averaged along the N dimension.
 %
-%   fig = PLOT_INTEGRATED(f, psd) returns the generated figure object.
+%   fig = PLOT_INTEGRATED(f, integr_disp) returns the generated figure object.
 %
-%   PLOT_INTEGRATED(f, psd, 'Parameter', 'Value', ...) accepts the
+%   PLOT_INTEGRATED(f, integr_disp, 'Parameter', 'Value', ...) accepts the
 %   following optional parameter/value pairs:
 %       'FigureName': 'figure name'
 %       'YLabel': 'Y label'
@@ -32,30 +32,22 @@ addParameter(p,'Direction','increasing',@(x) any(strcmp({'increasing','decreasin
 parse(p,varargin{:});
 opts = p.Results;
 
-avg_psd = mean(psd,3);
-max_psd = max(psd,[],3);
-min_psd = min(psd,[],3);
-
 if(strcmp(opts.Direction, 'decreasing'))
-    integr_avg = calc_integrated(f,avg_psd,'reverse');
-    integr_max = calc_integrated(f,max_psd,'reverse');
-    integr_min = calc_integrated(f,min_psd,'reverse');
+    error('Not supported yet');
 else
-    integr_avg = calc_integrated(f,avg_psd,[]);
-    integr_max = calc_integrated(f,max_psd,[]);
-    integr_min = calc_integrated(f,min_psd,[]);
+    integr_avg = mean(integr_disp,3);
+    integr_max = max(integr_disp,[],3);
+    integr_min = min(integr_disp,[],3);
 end
 
-nr_chans = size(psd,1);
+nr_chans = size(integr_disp,1);
 
 fig = figure('name',opts.FigureName);
 
 if(strcmp(opts.Direction, 'increasing'))
     loc = 'SouthEast';
-    %ff = f(2:end);
 else
     loc = 'NorthEast';
-    %ff = f(1:end-1);
 end
 
 for ch=1:nr_chans
@@ -81,14 +73,3 @@ for ch=1:nr_chans
 end
 
 end
-
-%% integrated displacement calculation function (from PSD)
-function integrated = calc_integrated(f, psd, direction)
-    if(isempty(direction))
-        cs = (cumsum(psd,2));
-    else
-        cs = (cumsum(psd,2,direction));
-    end    
-    integrated = cs;   
-end
-

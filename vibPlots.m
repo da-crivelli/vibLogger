@@ -52,6 +52,28 @@ function vibPlots(opts)
 load(opts.processed_file);  
 nrchans = size(rms_disp,1);
 
+% if we're looking for a specific datetime range, at the moment the best
+% option is to just chop the data before & after...
+% (only supports a single range as of now)
+if(isfield(opts,'datetime_range'))
+    start_time = find(acq_times >= opts.datetime_range{1},1);
+    start_time_file = find(acq_times_file >= opts.datetime_range{1},1);
+    end_time = find(acq_times < opts.datetime_range{2},1,'last');
+    end_time_file = find(acq_times_file < opts.datetime_range{2},1,'last');
+    
+    acq_times = acq_times(start_time:end_time);
+    acq_times_file = acq_times_file(start_time_file:end_time_file);
+    
+    p2p_disp = p2p_disp(:,start_time:end_time);
+    rms_disp = rms_disp(:,start_time:end_time);
+    
+    psd_vib = psd_vib(:,:,start_time_file:end_time_file);
+    psd_vib_disp = psd_vib_disp(:,:,start_time_file:end_time_file);
+    integr_disp = integr_disp(:,:,start_time_file:end_time_file);
+    
+    velo_octave_spec = velo_octave_spec(:,:,start_time_file:end_time_file);
+end
+
 % are these needed at all?
 %fupper = third_oct_bands_ctr * fd; 
 %flower = third_oct_bands_ctr / fd;
@@ -63,6 +85,21 @@ if(any(strcmp(opts.plots,'all')))
 else
     plot_all = false;
 end
+
+%% creates / prepares the figures output directory
+
+if(isfield(opts,'datetime_range'))
+    opts.fg_output_folder = strcat(opts.fg_output_folder, ...
+        datestr(opts.datetime_range{1},'yyyyMMdd'), '_',...
+        datestr(opts.datetime_range{2},'yyyyMMdd'),filesep);
+end
+
+if(~isfolder(opts.fg_output_folder))
+    mkdir(opts.fg_output_folder);
+end
+
+
+
 
 %% sets the "diary" file so that the output from some functions can be saved
 if(opts.SAVE_PLOTS)
@@ -282,7 +319,11 @@ if(opts.SAVE_PLOTS)
         if(opts.SAVE_PDF)
             print(strcat(opts.fg_output_folder,fg_names{fg}),'-dpdf','-r0');
         end
+        if(opts.SAVE_FIG)
+            savefig(fgr,strcat(opts.fg_output_folder,fg_names{fg}),'compact');
+        end
         print(strcat(opts.fg_output_folder,fg_names{fg}),'-dpng','-r600');
+        
     end
     
     diary off

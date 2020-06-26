@@ -45,7 +45,7 @@ function vibLogger(settings)
     % create session & initialise device
     s = daq.createSession('ni');
     for dev = 1:length(settings.device_ids)
-        for ch=1:length(settings.channels)
+        for ch=1:length(settings.channels{dev})
             if(isstr(settings.channel_type))
                 this_channel_type = settings.channel_type;
             else
@@ -55,6 +55,7 @@ function vibLogger(settings)
             addAnalogInputChannel(s, settings.device_ids{dev}, ...
                                      settings.channels{dev}(ch), ...
                                      this_channel_type);
+                                 
             if strcmp(this_channel_type,'IEPE')
                 s.Channels(ch).ExcitationCurrent = settings.iepe_excitation_current;
             end
@@ -124,13 +125,12 @@ function display_data(t, data, settings)
         nrchans = nrchans + length(settings.channels{dev});
     end
     
-    nrcols = ceil(sqrt(nrchans));
-    nrrows = ceil(nrchans/nrcols)*2;
     for ch=1:nrchans
-        subplot(nrrows,nrcols,2*ch-1);
+        subplot(nrchans,2,2*ch-1);
         plot(t, data(:,ch));
+        ylabel(settings.channel_names{ch});
         
-        subplot(nrrows,nrcols,2*ch);
+        subplot(nrchans,2,2*ch);
         pwelch(data(:,ch),[],[],[],settings.fsamp);
         
     end

@@ -5,12 +5,12 @@
 %   in the settings structure. Parameters: (? denotes optional)
 %
 %   settings.
-%     device_id (cell of strings): the device(s) to log from. Run "devices = daq.getDevices" to find the device ID
-%     channels (cell of arrays of int): which channels to read (start from 0)
+%     device_id (string): the device to log from. Run "devices = daq.getDevices" to find the device ID
+%     channels (array of int): which channels to read (start from 0)
 %     sensorIDs (cell of strings): sensor IDs (run sensors_db('list') to see all sensors currently on the database
 %     channel_names (cell of strings): human readable labels for channels
 %
-%     channel_type (string or cell of strings): type of channel. 'Voltage' for standard voltage, 'IEPE' for IEPE / ICP sensors. Applies to all channels.
+%     channel_type (string): type of channel. 'Voltage' for standard voltage, 'IEPE' for IEPE / ICP sensors. Applies to all channels.
 %     ? iepe_excitation_current: excitation current for ICP sensors                  
 %                    
 %     fsamp (int): sampling frequency per channel in Hz (all channels)
@@ -44,8 +44,9 @@ function vibLogger(settings)
 
     % create session & initialise device
     s = daq.createSession('ni');
+
     for dev = 1:length(settings.device_ids)
-        for ch=1:length(settings.channels)
+        for ch=1:length(settings.channels{dev})
             if(isstr(settings.channel_type))
                 this_channel_type = settings.channel_type;
             else
@@ -55,12 +56,13 @@ function vibLogger(settings)
             addAnalogInputChannel(s, settings.device_ids{dev}, ...
                                      settings.channels{dev}(ch), ...
                                      this_channel_type);
+                                 
             if strcmp(this_channel_type,'IEPE')
                 s.Channels(ch).ExcitationCurrent = settings.iepe_excitation_current;
             end
         end
     end
-    
+
     s.Rate = settings.fsamp;
 
     % start the data acquisition session in foreground & save data afterwards
@@ -110,7 +112,7 @@ function save_data(time, data, settings)
     save_filename = strcat(settings.output_folder, ...
         filesep,datestr(acq_date,'yyyymmdd_HHMMss'),'.mat');
     
-    % to be removed... makes it backwards compatible with the analyzer
+    % to be removed... make it backwards compatible with the analyzer
     fsamp = settings.fsamp;
     recording_time = settings.recording_time;
     
@@ -124,13 +126,12 @@ function display_data(t, data, settings)
         nrchans = nrchans + length(settings.channels{dev});
     end
     
-    nrcols = ceil(sqrt(nrchans));
-    nrrows = ceil(nrchans/nrcols)*2;
     for ch=1:nrchans
-        subplot(nrrows,nrcols,2*ch-1);
+        subplot(nrchans,2,2*ch-1);
         plot(t, data(:,ch));
+        ylabel(settings.channel_names{ch});
         
-        subplot(nrrows,nrcols,2*ch);
+        subplot(nrchans,2,2*ch);
         pwelch(data(:,ch),[],[],[],settings.fsamp);
         
     end

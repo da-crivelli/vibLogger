@@ -64,7 +64,7 @@ else
     nrfiles = settings.nrfiles;
 end
 
-if(not(settings.RESET_PROCESSED) && exist([settings.output_file,'.mat'],'file'))
+if(not(settings.RESET_PROCESSED) && exist(settings.output_file,'file'))
     load(settings.output_file);
 end
 
@@ -200,6 +200,13 @@ for f=f_zero:nrfiles
     
     % transmissibility ratio (if the file has a "input" and "output"
     % parameter
+    
+    % can be overridden in runVibAnalyzer.m
+    if(isfield(settings,'inputs'))
+        inputs = settings.inputs;
+        outputs = settings.outputs;
+    end   
+    
     if(exist('inputs','var'))
         winlen = length(data.data(:,inputs(1)))/settings.nrwindows;
         for iii=1:length(inputs)

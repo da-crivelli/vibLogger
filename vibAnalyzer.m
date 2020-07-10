@@ -73,7 +73,7 @@ if(settings.is_velo)
 end
 
 if(exist('f','var'))
-    f_zero = f;
+    f_zero = f+1;
 else
     f_zero = 1;
 end
@@ -209,9 +209,10 @@ for f=f_zero:nrfiles
     
     if(exist('inputs','var'))
         winlen = length(data.data(:,inputs(1)))/settings.nrwindows;
+        winoverlap = floor(winlen*settings.winoverlap);
         for iii=1:length(inputs)
             [transmiss_i, transmiss_freq, transmiss_coh] = ...
-                modalfrf(data.data(:,inputs(iii)),data.data(:,outputs(iii)),data.fsamp,winlen,'Sensor','dis');
+                modalfrf(data.data(:,inputs(iii)),data.data(:,outputs(iii)),data.fsamp,winlen,winoverlap,'Sensor','dis');
             transmiss(iii,f,:) = transmiss_i;
             coher(iii,f,:) = transmiss_coh;
         end

@@ -94,7 +94,7 @@ if(isfield(opts,'datetime_range'))
         datestr(opts.datetime_range{2},'yyyyMMdd'),filesep);
 end
 
-if(~isfolder(opts.fg_output_folder))
+if(~isfolder(opts.fg_output_folder) && opts.SAVE_PLOTS)
     mkdir(opts.fg_output_folder);
 end
 

@@ -17,35 +17,43 @@ copy, replace the path below with your local folder.
 clearvars
 close all
 
-% library path
 addpath('\\dc.diamond.ac.uk\dls\science\users\mca67379\MATLAB\vibLogger');
+
+%% config
 
 settings = struct();
 
-settings.device_id = 'cDAQ1Mod3';  % run "devices = daq.getDevices" and find the device ID
+settings.device_ids = {'cDAQ2Mod3','cDAQ2Mod4'};  % run "devices = daq.getDevices" and find the device ID
 
-settings.channels = [0, 1, 2, 3];  % which channels to read 
-settings.sensorIDs = {'50887','50983','50985','50984'};  %sensor IDs (run sensors_db('list') to see all sensors)
-settings.channel_names = {'V building','H building','V slab','H slab'}; %channel names
+settings.channels{1} = [0, 1, 2];  % which channels to read on each module / device
+settings.channels{2} = [0, 1, 2];  % which channels to read on each module / device
+
+settings.sensorIDs = {'unity','unity','unity','58595','58594','50887'};  %sensor IDs (run sensors_db('list') to see all sensors)
+settings.channel_names = {'Mono X','Mono Y','Mono Z','Ground X','Ground Y','Ground Z'}; %channel names
 
 %settings.transmiss_inputs = [1 2];  % only for transmissibility ratio tests.
 %settings.transmiss_outputs = [3 4]; % Comment out for standard vibration test
 
-settings.channel_type = 'IEPE';  % 'Voltage' for standard voltage
-                                % 'IEPE' for IEPE / ICP sensors
-settings.iepe_excitation_current = .004;                         
+settings.channel_type = 'Voltage';  % 'Voltage' for standard voltage
+                                 % 'IEPE' for IEPE / ICP sensors.
+                                 % also accepts a cell of strings for
+                                 % different settings per channel.
+                                 
+%settings.iepe_excitation_current = .004;                         
                         
 settings.fsamp = 2048;   % sampling frequency in Hz
 settings.recording_time = 1; % time to record in seconds per block
-settings.timeout = 33;   % max acquisition time in seconds
+settings.timeout = 200;   % max acquisition time in seconds
 
-settings.output_folder = '20200317_Office_Tests'; %where to save the results
+settings.output_folder = '.'; %where to save the results
 
 settings.live_preview = true;   
 settings.save_data = false;      % currently there is no way to 
                                 % independently set the save and preview times
 
+%% runs vibLogger                                
 vibLogger(settings);
+
 ```
 
 ## Processing data
@@ -112,10 +120,15 @@ settings = struct();
 %where the processed data was saved by vibAnalyzer
 settings.processed_file = '20200317_freq_2.mat'; 
 
+% start and end times for plots. Format: '31-May-2020 03:49:48'
+% if you omit the time, it assumes the very start of the day.
+settings.datetime_range = {'30-May-2020','31-May-2020'};
+
 %where to save the figures (if SAVE_PLOTS is true)
 settings.fg_output_folder = 'Plots\new_plots_test\';
 settings.SAVE_PLOTS = false;
 settings.SAVE_PDF = false;
+settings.SAVE_FIG = false;
 
 % probability plot params
 settings.prob_chart_distribution = 'LogNormal';
@@ -139,5 +152,6 @@ settings.hour_slices = [0 3 8 16 24];
 
 %% run the plotter
 vibPlots(settings);
+
 
 ```

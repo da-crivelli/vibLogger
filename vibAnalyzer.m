@@ -73,6 +73,9 @@ if(settings.is_velo)
 end
 
 if(exist('f','var'))
+    if(isempty(f))
+        error('variable f is empty... double check .mat file and retry');
+    end
     f_zero = f+1;
 else
     f_zero = 1;
@@ -84,7 +87,32 @@ wb = waitbar(0,sprintf('Processing file %.0d of %.0d',0,nrfiles));
 for f=f_zero:nrfiles
     waitbar(f/nrfiles,wb,sprintf('Processing file %.0d of %.0d',f,nrfiles));
     
-    data = load(strcat(settings.data_folder,filesep,files(f,:)));
+    % try to open the file... with network locations this may fail
+    % occasionally so we wait and retry a few times
+    attempt = 1;
+    success = false;
+    while (attempt <= 5) && ~success
+        try
+            filename = strcat(settings.data_folder,filesep,files(f,:));
+            data = load(filename);
+            success = true;
+        catch err
+            attempt = attempt + 1;
+            if(strcmp(err.identifier, 'MATLAB:load:couldNotReadFile'))
+                % pause for a bit1 second times the current iteration no.
+                % display a message
+                pause_time = attempt * 1;
+                fprintf('Error accessing %s, pausing for %.0ds\n',filename,pause_time);
+                pause(pause_time);
+            else
+                rethrow(err);
+            end
+        end
+    end
+    
+    if(~success)    
+        rethrow(err);
+    end
     
     % first - remove DC offsets
     y = detrend(data.data);

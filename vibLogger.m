@@ -5,8 +5,8 @@
 %   in the settings structure. Parameters: (? denotes optional)
 %
 %   settings.
-%     device_id (string): the device to log from. Run "devices = daq.getDevices" to find the device ID
-%     channels (array of int): which channels to read (start from 0)
+%     device_ids (cell of string): the devices to log from. Run "devices = daq.getDevices" to find the device ID
+%     channels{i} (cell of arrays of int): which channels to read per device (start from 0)
 %     sensorIDs (cell of strings): sensor IDs (run sensors_db('list') to see all sensors currently on the database
 %     channel_names (cell of strings): human readable labels for channels
 %
@@ -23,10 +23,6 @@
 %   
 %     // the following parameters are optional and can also be manually
 %     specified in the config.m file that gets generated at the end:
-%
-%     ? transmiss_inputs: (array of int): inputs for transmissibility ratio
-%     ? transmiss_outputs: (array of int): outputs for transmissibility ratio
-%
 %
 %  Davide Crivelli
 %  davide.crivelli@diamond.ac.uk

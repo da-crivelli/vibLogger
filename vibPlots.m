@@ -1,12 +1,11 @@
 %   VIBPLOTS(settings) plots data processed by vibAnalyzer
-%   
-%   VIBANALYZER(settings) runs the analysis code with settings specified
-%   in the settings structure. Parameters: (? denotes optional)
 %
 %   settings.
 %     processed_file (string): where the processed data was saved by vibAnalyzer
+%     ? datetime_range (cell of string): start and end date to plot
 %     SAVE_PLOTS (bool): whether to save all plots in .pdf and .png form
 %     SAVE_PDF (bool): if set to false, will only save a .png
+%     SAVE_FIG (bool): whether to save a Matlab .fig figure file
 %     fg_output_folder (string): where to save the plot files
 %
 %     plots (cell of strings): which plots to show (see below)

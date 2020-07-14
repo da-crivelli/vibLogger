@@ -54,7 +54,7 @@ ylabel(opts.YLabel);
 % histogram plot
 ax2 = subplot(1,3,3);
 for c=1:nr_chans
-    histogram(y(c,:),'Normalization','pdf','Orientation','horizontal','EdgeColor','none');
+    histogram(y(c,:),'Normalization','probability','Orientation','horizontal','EdgeColor','none');
     hold on;
     grid on
 end

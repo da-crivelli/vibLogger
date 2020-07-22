@@ -31,7 +31,7 @@
 %
 %  see also: VIBANALYZER, VIBPLOTS, SENSORS_DB
 
-function vibLogger(settings)
+function s = vibLogger(settings)
 
     if(~exist(strcat(settings.output_folder,filesep,'config.m'),'file'))
         % autowrite config file

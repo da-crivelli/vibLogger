@@ -95,6 +95,7 @@ function vibLogger(settings)
             rethrow(err);
         else
             disp('Finished recording');
+            s.stop();
         end
     end
 

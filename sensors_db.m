@@ -7,8 +7,6 @@ function [sens] = sensors_db(in)
 %   SENSORS_DB('list') prints a list of all available sensors and serial
 %   numbers
 %
-%   SENSORS_DB('all') returns the sensor DB as a variable
-%
 %   Davide Crivelli
 %   davide.crivelli@diamond.ac.uk
 %
@@ -41,8 +39,20 @@ function [sens] = sensors_db(in)
                             
     sensors('58595') = struct(  'sens', 0.989e-9,...
                                 'make', 'PCB',...
-                                'model', '393B31');                            
+                                'model', '393B31');
+
+	sensors('6168') = struct(   'sens', 1.013e-9,...
+                                'make', 'PCB',...
+                                'model', '626A34');
+
+	sensors('6169') = struct(   'sens', 1.017e-9,...
+                                'make', 'PCB',...
+                                'model', '626A34');
                             
+	sensors('6170') = struct(   'sens', 1.016e-9,...
+                                'make', 'PCB',...
+                                'model', '626A34');        
+                                                        
     sensors('LW214478_X') = struct(  'sens', 0.0983e-9,...
                                 'make', 'PCB',...
                                 'model', '356B18');
@@ -79,13 +89,10 @@ function [sens] = sensors_db(in)
                     fprintf('%s\t\t%s\t%.3d\t%s\n',sensors(k{1}).make, ...
                         sensors(k{1}).model,sensors(k{1}).sens,k{1});
                 end
-            case 'all'
-                sens = sensors;
             otherwise
                 error('Error. \nOption ''%s'' not recognised',in);
         end
     end
     
 end
-
 

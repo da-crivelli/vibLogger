@@ -51,7 +51,7 @@ function [integr, freq, spec_disp, rms_disp] = fft_integrated_accel2disp(data, f
     end
     
     % integrate the displacement
-    integr = sqrt( cumsum( 0.5 .* ( spec_disp ).^2 ,2,direction) );
+    integr = cumsum( sqrt(0.5 .* ( spec_disp ).^2 ),2,direction);
  
     % RMS is the total sum of integrated displacement (or, end point)
     rms_disp = integr(:,end);

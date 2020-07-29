@@ -33,12 +33,15 @@ parse(p,varargin{:});
 opts = p.Results;
 
 if(strcmp(opts.Direction, 'decreasing'))
-    error('Not supported yet');
-else
-    integr_avg = mean(integr_disp,3);
-    integr_max = max(integr_disp,[],3);
-    integr_min = min(integr_disp,[],3);
-end
+    integr_disp_2 = cumsum(sqrt((0.5*diff(integr_disp,2,2)).^2),2,'reverse');
+    integr_disp = zeros(size(integr_disp));
+    integr_disp(:,2:end-1,:)=integr_disp_2;
+    integr_disp(:,1,:) = integr_disp(:,2,:);
+end    
+
+integr_avg = mean(integr_disp,3);
+integr_max = max(integr_disp,[],3);
+integr_min = min(integr_disp,[],3);
 
 nr_chans = size(integr_disp,1);
 

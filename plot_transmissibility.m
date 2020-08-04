@@ -24,6 +24,7 @@ p = inputParser;
 addParameter(p,'FigureName','Figure',@ischar);
 addParameter(p,'FigureTitle','',@ischar);
 addParameter(p,'CoherenceFilter',1,@isnumeric);
+addParameter(p,'FreqRange',[-Inf Inf],@(x) validateattributes(x,{'numeric'},{'size',[1,2]}));
 
 parse(p,varargin{:});
 opts = p.Results;
@@ -75,5 +76,6 @@ semilogx(xl,[opts.CoherenceFilter,opts.CoherenceFilter],'--k');
 xlabel('Frequency (Hz)');
 
 linkaxes([ax1, ax2, ax3], 'x');
+xlim(ax1,opts.FreqRange);
 
 end

@@ -20,6 +20,8 @@
 %
 %     hour_slices (array of float, 0 to 24): hours slices for by-hour statistics plots
 %
+%     transmiss_range (2x1 array): frequency range for limiting
+%     transmissibility plots
 %     coherence_filter (float 0-1): value at which to filter coherence for
 %     highlighting in transmissibility plots
 %
@@ -289,7 +291,8 @@ if(any(strcmp(opts.plots,'transmissibility')) || plot_all)
                 transmiss(in,:,:), coher(in,:,:), ...
                 'FigureName',fig_name, ...
                 'FigureTitle',fig_title,...
-                'CoherenceFilter',opts.coherence_filter);
+                'CoherenceFilter',opts.coherence_filter, ...
+                'FreqRange',opts.transmiss_range);
         end
     end
 end

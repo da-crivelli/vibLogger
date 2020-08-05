@@ -233,11 +233,12 @@ for f=f_zero:nrfiles
     if(isfield(settings,'inputs'))
         inputs = settings.inputs;
         outputs = settings.outputs;
-        if(isfield(settings,'winoverlap'))
-            transm_overlap = settings.winoverlap;
-        else
-            transm_overlap = 0.5;
-        end
+    end
+    
+    if(isfield(settings,'winoverlap'))
+        transm_overlap = settings.winoverlap;
+    else
+        transm_overlap = 0.5;
     end
     
     if(exist('inputs','var'))

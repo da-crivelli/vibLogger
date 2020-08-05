@@ -233,11 +233,16 @@ for f=f_zero:nrfiles
     if(isfield(settings,'inputs'))
         inputs = settings.inputs;
         outputs = settings.outputs;
-    end   
+        if(isfield(settings,'winoverlap'))
+            transm_overlap = settings.winoverlap;
+        else
+            transm_overlap = 0.5;
+        end
+    end
     
     if(exist('inputs','var'))
         winlen = length(data.data(:,inputs(1)))/settings.nrwindows;
-        winoverlap = floor(winlen*settings.winoverlap);
+        winoverlap = floor(winlen*transm_overlap);
         for iii=1:length(inputs)
             [transmiss_i, transmiss_freq, transmiss_coh] = ...
                 modalfrf(data.data(:,inputs(iii)),data.data(:,outputs(iii)),data.fsamp,winlen,winoverlap,'Sensor','dis');

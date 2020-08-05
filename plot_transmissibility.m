@@ -29,9 +29,11 @@ addParameter(p,'FreqRange',[-Inf Inf],@(x) validateattributes(x,{'numeric'},{'si
 parse(p,varargin{:});
 opts = p.Results;
 
-trz = mean(abs(squeeze(transmiss)));
-cohz = mean(squeeze(coher));
-ang = mean(squeeze(rad2deg(angle(transmiss)))); 
+sz = size(transmiss);
+
+trz = mean(abs(reshape(transmiss,[sz(2:end) 1])),1);
+cohz = mean(reshape(coher,[sz(2:end) 1]),1);
+ang = mean(reshape(rad2deg(angle(transmiss)),[sz(2:end) 1]),1); 
 
 high_coh = cohz >= opts.CoherenceFilter;
 

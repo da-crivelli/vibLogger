@@ -30,6 +30,9 @@ octave_band = [3.15 500];   % start and end of bands
 bpo = 3;                    % bands per octave (3 = 1/3 octave)
 settings.octave_opts = {'FrequencyLimits',octave_band,'BandsPerOctave',bpo};
 
+settings.inputs = [1];
+settings.outputs = [2];
+settings.winoverlap = 0.5;
 
 %% run the analyzer
 vibAnalyzer(settings);

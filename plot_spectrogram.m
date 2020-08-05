@@ -31,6 +31,12 @@ opts = p.Results;
 
 fig = figure('name',opts.FigureName);
 
+%% check if psd is a one-liner... if so, stop
+if(size(psd,1) < 2)
+    warning("Spectrograms cannot be produced with a single file");
+    return
+end
+
 %% time-RMS plot
 ax1 = subplot(3,1,1);
 plot(x,y);

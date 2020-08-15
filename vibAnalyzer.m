@@ -170,9 +170,9 @@ for f=f_zero:nrfiles
         
         % calculate RMS via integrated FFT
         if(~settings.is_velo)
-            [integr, ff, spec_disp, rms_disp_ff] = fft_integrated_accel2disp(accel, data.fsamp);
+            [integr, ff, spec_disp, rms_disp_ff] = fft_integrated_accel2disp(accel, data.fsamp, settings.highpass);
         else
-            [integr, ff, spec_disp, rms_disp_ff] = fft_integrated_accel2disp(accel, data.fsamp,'velocity');
+            [integr, ff, spec_disp, rms_disp_ff] = fft_integrated_accel2disp(accel, data.fsamp, settings.highpass, 'velocity');
         end
         
         integr_disp_chunk(chan,:) = mean(integr);
@@ -233,11 +233,17 @@ for f=f_zero:nrfiles
     if(isfield(settings,'inputs'))
         inputs = settings.inputs;
         outputs = settings.outputs;
-    end   
+    end
+    
+    if(isfield(settings,'winoverlap'))
+        transm_overlap = settings.winoverlap;
+    else
+        transm_overlap = 0.5;
+    end
     
     if(exist('inputs','var'))
         winlen = length(data.data(:,inputs(1)))/settings.nrwindows;
-        winoverlap = floor(winlen*settings.winoverlap);
+        winoverlap = floor(winlen*transm_overlap);
         for iii=1:length(inputs)
             [transmiss_i, transmiss_freq, transmiss_coh] = ...
                 modalfrf(data.data(:,inputs(iii)),data.data(:,outputs(iii)),data.fsamp,winlen,winoverlap,'Sensor','dis');
@@ -246,6 +252,7 @@ for f=f_zero:nrfiles
         end
     end
 end
+waitbar(f/nrfiles,wb,sprintf('Finished processing (%.0d of %.0d)',f,nrfiles));
 
 save(settings.output_file,'acq_times',...
     'integr_disp','rms_disp','p2p_disp','f',...

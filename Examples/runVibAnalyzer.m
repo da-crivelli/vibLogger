@@ -17,11 +17,12 @@ settings.CHECK_PLOTS = true; % plots some debugging plots. warning: "TRUE"
                     % may just crash Matlab if there's a lot of files
 
 %% frequency and data integration related stuff
-settings.nrchunks = 11;  %number of chunks to split data before integration
+settings.nrchunks = 30;  %number of chunks to split data before integration
 settings.nrwindows = 30; % number of windows for transmissibility ratio
 
+settings.highpass = 2;  % highpass frequency for RMS / integration
 settings.fcut = 600; % Hz, lowpass cutoff frequency
-settings.spectrogram_freqs = 1:0.1:500; % spectral lines for spectrograms
+settings.spectrogram_freqs = 1:1:500; % spectral lines for spectrograms
 
 settings.is_velo = false;    % set to TRUE if the measurements are already in velocity. 
 
@@ -30,6 +31,12 @@ octave_band = [3.15 500];   % start and end of bands
 bpo = 3;                    % bands per octave (3 = 1/3 octave)
 settings.octave_opts = {'FrequencyLimits',octave_band,'BandsPerOctave',bpo};
 
+%% Transmissibility ratio
+% settings.winoverlap = 0.67;    % transmissibility window overlap fraction
+
+% inputs and outputs overwriting for transmissibility ratio
+%settings.inputs = [1 2];
+%settings.outputs = [3 3];
 
 %% run the analyzer
 vibAnalyzer(settings);

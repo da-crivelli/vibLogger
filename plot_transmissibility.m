@@ -24,13 +24,16 @@ p = inputParser;
 addParameter(p,'FigureName','Figure',@ischar);
 addParameter(p,'FigureTitle','',@ischar);
 addParameter(p,'CoherenceFilter',1,@isnumeric);
+addParameter(p,'FreqRange',[-Inf Inf],@(x) validateattributes(x,{'numeric'},{'size',[1,2]}));
 
 parse(p,varargin{:});
 opts = p.Results;
 
-trz = mean(abs(squeeze(transmiss)));
-cohz = mean(squeeze(coher));
-ang = mean(squeeze(rad2deg(angle(transmiss)))); 
+sz = size(transmiss);
+
+trz = mean(abs(reshape(transmiss,[sz(2:end) 1])),1);
+cohz = mean(reshape(coher,[sz(2:end) 1]),1);
+ang = mean(reshape(rad2deg(angle(transmiss)),[sz(2:end) 1]),1); 
 
 high_coh = cohz >= opts.CoherenceFilter;
 
@@ -75,5 +78,6 @@ semilogx(xl,[opts.CoherenceFilter,opts.CoherenceFilter],'--k');
 xlabel('Frequency (Hz)');
 
 linkaxes([ax1, ax2, ax3], 'x');
+xlim(ax1,opts.FreqRange);
 
 end

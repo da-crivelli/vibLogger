@@ -33,6 +33,10 @@
 
 function s = vibLogger(settings)
 
+    if(~isfolder(settings.output_folder))
+        mkdir(settings.output_folder);
+    end
+    
     if(~exist(strcat(settings.output_folder,filesep,'config.m'),'file'))
         % autowrite config file
         create_vib_config_file(strcat(settings.output_folder,filesep,'config.m'),settings); 
@@ -64,10 +68,6 @@ function s = vibLogger(settings)
     % start the data acquisition session in foreground & save data afterwards
     pause('on');
     scan_count = 0;
-
-    if(~isfolder(settings.output_folder))
-        mkdir(settings.output_folder);
-    end
     
     s.IsContinuous = true;
 

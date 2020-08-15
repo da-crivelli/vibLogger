@@ -170,9 +170,9 @@ for f=f_zero:nrfiles
         
         % calculate RMS via integrated FFT
         if(~settings.is_velo)
-            [integr, ff, spec_disp, rms_disp_ff] = fft_integrated_accel2disp(accel, data.fsamp);
+            [integr, ff, spec_disp, rms_disp_ff] = fft_integrated_accel2disp(accel, data.fsamp, settings.highpass);
         else
-            [integr, ff, spec_disp, rms_disp_ff] = fft_integrated_accel2disp(accel, data.fsamp,'velocity');
+            [integr, ff, spec_disp, rms_disp_ff] = fft_integrated_accel2disp(accel, data.fsamp, settings.highpass, 'velocity');
         end
         
         integr_disp_chunk(chan,:) = mean(integr);

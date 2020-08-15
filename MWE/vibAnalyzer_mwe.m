@@ -20,6 +20,7 @@ settings.CHECK_PLOTS = true; % plots some debugging plots. warning: "TRUE"
 settings.nrchunks = 60;  %number of chunks to split data before integration
 settings.nrwindows = 30; % number of windows for transmissibility ratio
 
+settings.highpass = 2;  % highpass frequency for RMS / integration
 settings.fcut = 600; % Hz, lowpass cutoff frequency
 settings.spectrogram_freqs = 1:1:500; % spectral lines for spectrograms
 

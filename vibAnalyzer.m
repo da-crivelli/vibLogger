@@ -252,6 +252,7 @@ for f=f_zero:nrfiles
         end
     end
 end
+waitbar(f/nrfiles,wb,sprintf('Finished processing (%.0d of %.0d)',f,nrfiles));
 
 save(settings.output_file,'acq_times',...
     'integr_disp','rms_disp','p2p_disp','f',...

@@ -95,20 +95,23 @@ if(isfield(opts,'datetime_range'))
         datestr(opts.datetime_range{2},'yyyyMMdd'),filesep);
 end
 
-if(~isfolder(opts.fg_output_folder) && opts.SAVE_PLOTS)
-    mkdir(opts.fg_output_folder);
+if(isfield(opts,'fg_output_folder'))
+    if(~isfolder(opts.fg_output_folder) && opts.SAVE_PLOTS)
+        mkdir(opts.fg_output_folder);
+    end
 end
 
 
 
-
 %% sets the "diary" file so that the output from some functions can be saved
-if(opts.SAVE_PLOTS)
-    diary_file = [opts.fg_output_folder,'stats.txt'];
-    if(exist(diary_file,'file'))
-        delete(diary_file);
+if(isfield(opts,'SAVE_PLOTS'))
+    if(opts.SAVE_PLOTS)
+        diary_file = [opts.fg_output_folder,'stats.txt'];
+        if(exist(diary_file,'file'))
+            delete(diary_file);
+        end
+        diary(diary_file);
     end
-    diary(diary_file);
 end
 
 %% 'time': time driven data
@@ -303,38 +306,39 @@ if(any(strcmp(opts.plots,'transmissibility')) || plot_all)
 end
 
 %% figure setup and printing
-if(opts.SAVE_PLOTS)
-    fg_names = figures.keys;
-    
-    if(~exist(opts.fg_output_folder,'dir'))
-        mkdir(opts.fg_output_folder);
+if(isfield(opts,'SAVE_PLOTS'))
+    if(opts.SAVE_PLOTS)
+        fg_names = figures.keys;
+
+        if(~exist(opts.fg_output_folder,'dir'))
+            mkdir(opts.fg_output_folder);
+        end
+
+        for fg=1:length(figures)
+            fgr = figure(figures(fg_names{fg}));
+            fgr.WindowState = 'maximized';
+
+            for chi = 1:length(fgr.Children)
+                axe = fgr.Children(chi);
+                set(axe,'FontSize',14);
+            end
+
+            pause(1);
+            set(fgr,'Units','Inches');
+            pos = get(fgr,'Position');        
+            set(fgr,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)])        
+            if(opts.SAVE_PDF)
+                print(strcat(opts.fg_output_folder,fg_names{fg}),'-dpdf','-r0');
+            end
+            if(opts.SAVE_FIG)
+                savefig(fgr,strcat(opts.fg_output_folder,fg_names{fg}),'compact');
+            end
+            print(strcat(opts.fg_output_folder,fg_names{fg}),'-dpng','-r600');
+
+        end
+
+        diary off
     end
-    
-    for fg=1:length(figures)
-        fgr = figure(figures(fg_names{fg}));
-        fgr.WindowState = 'maximized';
-       
-        for chi = 1:length(fgr.Children)
-            axe = fgr.Children(chi);
-            set(axe,'FontSize',14);
-        end
-        
-        pause(1);
-        set(fgr,'Units','Inches');
-        pos = get(fgr,'Position');        
-        set(fgr,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)])        
-        if(opts.SAVE_PDF)
-            print(strcat(opts.fg_output_folder,fg_names{fg}),'-dpdf','-r0');
-        end
-        if(opts.SAVE_FIG)
-            savefig(fgr,strcat(opts.fg_output_folder,fg_names{fg}),'compact');
-        end
-        print(strcat(opts.fg_output_folder,fg_names{fg}),'-dpng','-r600');
-        
-    end
-    
-    diary off
 end
-    
     
 end

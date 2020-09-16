@@ -91,8 +91,8 @@ end
 
 if(isfield(opts,'datetime_range'))
     opts.fg_output_folder = strcat(opts.fg_output_folder, ...
-        datestr(opts.datetime_range{1},'yyyyMMdd'), '_',...
-        datestr(opts.datetime_range{2},'yyyyMMdd'),filesep);
+        datestr(opts.datetime_range{1},'yyyymmdd'), '_',...
+        datestr(opts.datetime_range{2},'yyyymmdd'),filesep);
 end
 
 if(~isfolder(opts.fg_output_folder) && opts.SAVE_PLOTS)

@@ -98,13 +98,16 @@ for f=f_zero:nrfiles
             success = true;
         catch err
             attempt = attempt + 1;
-            if(strcmp(err.identifier, 'MATLAB:load:couldNotReadFile'))
+            if(strcmp(err.identifier, 'MATLAB:load:couldNotReadFile') ||...
+                strcmp(err.identifier, 'MATLAB:load:couldNotReadFileSystemMessage') ||...
+                strcmp(err.identifier, 'MATLAB:load:cantReadFile'))
                 % pause for a bit1 second times the current iteration no.
                 % display a message
                 pause_time = attempt * 1;
                 fprintf('Error accessing %s, pausing for %.0ds\n',filename,pause_time);
                 pause(pause_time);
             else
+                fprintf(err.identifier);
                 rethrow(err);
             end
         end

@@ -107,12 +107,12 @@ end
 
 %% sets the "diary" file so that the output from some functions can be saved
 if(opts.SAVE_PLOTS)
-    diary on
     diary_file = [opts.fg_output_folder,'stats.txt'];
     if(exist(diary_file,'file'))
         delete(diary_file);
     end
     diary(diary_file);
+    diary on
 end
 
 %% 'time': time driven data

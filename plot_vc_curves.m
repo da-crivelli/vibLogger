@@ -38,9 +38,9 @@ velo_octave_spec_mean = mean(velo_octave_spec,3);
 velo_octave_spec_std = std(velo_octave_spec,0,3);
 velo_octave_spec_max = max(velo_octave_spec,[],3);
 
-vm = 10*log10(velo_octave_spec_mean);
-vu = 10*log10(velo_octave_spec_mean + velo_octave_spec_std);
-vmax = 10*log10(velo_octave_spec_max);
+vm = velo_octave_spec_mean;
+vu = velo_octave_spec_mean + velo_octave_spec_std;
+vmax = velo_octave_spec_max;
 
 yl = [Inf 0];
 
@@ -49,16 +49,17 @@ for ch=1:nr_chans
     subplot(1,nr_chans,ch);
     
     if(strcmp(opts.Mode, 'Lines'))
-        semilogx(cf,vm(ch,:),'LineWidth',2);
+        loglog(cf,vm(ch,:),'LineWidth',2);
         hold on;
-        semilogx(cf,vu(ch,:));
-        semilogx(cf,vmax(ch,:));
+        loglog(cf,vu(ch,:));
+        loglog(cf,vmax(ch,:));
     
         legend({'Mean','+\sigma','max'},'location','SouthWest','EdgeColor','white','Color','white');
     elseif(strcmp(opts.Mode,'Area'))
         fill([cf; flipud(cf)], [vmax(ch,:),fliplr(vm(ch,:))]',[0.3 0.3 0.3]);
         ax=gca();
         set(ax, 'XScale', 'log');
+        set(ax, 'YScale', 'log');
         legend({'Mean-Max'},'location','SouthWest','EdgeColor','white','Color','white');
     end
     
@@ -69,8 +70,8 @@ for ch=1:nr_chans
     hold on;
     xx = xlim();
     for cvc = 1:length(vc_curves)
-        plot(xx,[10*log10(vc_curves(cvc)) 10*log10(vc_curves(cvc))],'--k','HandleVisibility','off');
-        text(xx(2),10*log10(vc_curves(cvc)),vc_labels{cvc});
+        loglog(xx,[vc_curves(cvc) vc_curves(cvc)],'--k','HandleVisibility','off');
+        text(xx(2),vc_curves(cvc),vc_labels{cvc});
     end
     
     %equalising Y limit

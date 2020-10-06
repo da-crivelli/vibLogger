@@ -20,10 +20,13 @@
 %
 %     hour_slices (array of float, 0 to 24): hours slices for by-hour statistics plots
 %
-%     transmiss_range (2x1 array): frequency range for limiting
-%     transmissibility plots
+%     // transmissibility
+%     transmiss_range (2x1 array): frequency range for limiting transmissibility plots
 %     coherence_filter (float 0-1): value at which to filter coherence for
 %     highlighting in transmissibility plots
+%
+%     // display
+%     vc_mode: 'Area' or 'Lines' ('Area' shades the area between the mean-max lines);
 %
 %   Available plots:
 %     all: all available plots
@@ -197,10 +200,15 @@ end
 %% 'vc_curves': VC curves / third octave plots
 
 if(any(strcmp(opts.plots,'vc_curves')) || plot_all)
+    vc_mode = 'Lines';
+    if(isfield(opts,'vc_mode'))
+        vc_mode = opts.vc_mode;
+    end
     figures('VC_curves') = plot_vc_curves(cf, velo_octave_spec, ...
         'FigureName','VC_curves',...
         'YLabel','RMS velocity (dB re 1 um/s)',...
-        'Legend',channel_names);
+        'Legend',channel_names,...
+        'Mode',vc_mode);
 end
 
 

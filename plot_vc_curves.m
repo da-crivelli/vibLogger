@@ -19,14 +19,15 @@ function fig = plot_vc_curves(cf, velo_octave_spec, varargin)
 %   see also: VIBPLOTS, VIBLOGGER
 
 % VC levels for VC curves (should not need changing)
-vc_curves = [0.78 0.39 0.195 0.097 0.048 0.024 0.012];
-vc_labels = {'VC-G','VC-H','VC-I','VC-J','VC-K','VC-L','VC-M'};
+vc_curves = [3.12 1.56 0.78 0.39 0.195 0.097 0.048 0.024 0.012];
+vc_labels = {'VC-E','VC-F','VC-G','VC-H','VC-I','VC-J','VC-K','VC-L','VC-M'};
 
 p = inputParser;
 
 addParameter(p,'FigureName','Figure',@ischar);
 addParameter(p,'YLabel','Y',@ischar);
 addParameter(p,'Legend',{''});
+addParameter(p,'Mode','Lines', @ischar);
 
 parse(p,varargin{:});
 opts = p.Results;
@@ -47,12 +48,19 @@ fig = figure('name',opts.FigureName);
 for ch=1:nr_chans
     subplot(1,nr_chans,ch);
     
-    semilogx(cf,vm(ch,:),'LineWidth',2);
-    hold on;
-    semilogx(cf,vu(ch,:));
-    semilogx(cf,vmax(ch,:));
+    if(strcmp(opts.Mode, 'Lines'))
+        semilogx(cf,vm(ch,:),'LineWidth',2);
+        hold on;
+        semilogx(cf,vu(ch,:));
+        semilogx(cf,vmax(ch,:));
     
-    legend({'Mean','+\sigma','max'},'location','SouthWest','EdgeColor','white','Color','white');
+        legend({'Mean','+\sigma','max'},'location','SouthWest','EdgeColor','white','Color','white');
+    elseif(strcmp(opts.Mode,'Area'))
+        fill([cf; flipud(cf)], [vmax(ch,:),fliplr(vm(ch,:))]',[0.3 0.3 0.3]);
+        ax=gca();
+        set(ax, 'XScale', 'log');
+        legend({'Mean-Max'},'location','SouthWest','EdgeColor','white','Color','white');
+    end
     
     xlabel('Frequency (Hz)');
     ylabel(opts.YLabel);
@@ -76,6 +84,7 @@ end
 for(ch=1:nr_chans)
     subplot(1,nr_chans,ch);
     ylim(yl);
+    
 end
 
 

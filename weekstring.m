@@ -25,14 +25,25 @@ today_date = datetime();
 % Tuesday = 3 because Matlab... regardless of locale! unbelievable
 wday = weekday(today_date);
 
-T1 = datetime(today_date.Year,today_date.Month,today_date.Day,switch_hour,0,0);
+% find the distance between switch_day and today
+dist = switch_day - wday;
+
+% if switch_day is after today, the actual switch_day is in the past
+if dist > 0
+    dist = dist -7;
+end
+
+switch_datetime = today_date + days(dist);
+switch_datetime.Hour = switch_hour; 
+switch_datetime.Minute = 0;
+switch_datetime.Second = 0;
 
 % if we're on the switching weekday and it's after switching time, it's
 % today's date folder - if not, it's last weeks'.
-if ( (wday == switch_day) && (today_date > T1) )
-    weekstr = datestr(today_date,'YYYYmmdd');
+if ( today_date > switch_datetime)
+    weekstr = datestr(switch_datetime,'YYYYmmdd');
 else
-    weekstr = datestr(today_date - days(7),'YYYYmmdd');
+    weekstr = datestr(switch_datetime - days(7),'YYYYmmdd');
 end
 
 

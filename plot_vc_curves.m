@@ -10,6 +10,7 @@ function fig = plot_vc_curves(cf, velo_octave_spec, varargin)
 %       'FigureName': 'figure name'
 %       'YLabel': 'Y label'
 %       'Legend': {'chan 1', 'chan 2'...} (channel names)
+%       'Mode': 'Lines' or 'Area' (plot mode)
 %
 %   Davide Crivelli
 %   davide.crivelli@diamond.ac.uk
@@ -28,6 +29,7 @@ addParameter(p,'FigureName','Figure',@ischar);
 addParameter(p,'YLabel','Y',@ischar);
 addParameter(p,'Legend',{''});
 addParameter(p,'Mode','Lines', @ischar);
+addParameter(p,'Percentile',99, @(x)( (x>0) & (x<=100) ));
 
 parse(p,varargin{:});
 opts = p.Results;
@@ -36,11 +38,11 @@ nr_chans = size(velo_octave_spec,1);
 
 velo_octave_spec_mean = mean(velo_octave_spec,3);
 velo_octave_spec_std = std(velo_octave_spec,0,3);
-velo_octave_spec_max = max(velo_octave_spec,[],3);
+velo_octave_spec_perc = prctile(velo_octave_spec,opts.Percentile,3);
 
 vm = velo_octave_spec_mean;
 vu = velo_octave_spec_mean + velo_octave_spec_std;
-vmax = velo_octave_spec_max;
+vperc = velo_octave_spec_perc;
 
 yl = [Inf 0];
 
@@ -52,15 +54,15 @@ for ch=1:nr_chans
         loglog(cf,vm(ch,:),'LineWidth',2);
         hold on;
         loglog(cf,vu(ch,:));
-        loglog(cf,vmax(ch,:));
-    
-        legend({'Mean','+\sigma','max'},'location','SouthWest','EdgeColor','white','Color','white');
+        loglog(cf,vperc(ch,:));
+        legend({'Mean','+\sigma',sprintf('%d%%',opts.Percentile)},'location','SouthWest','EdgeColor','white','Color','white');
+        
     elseif(strcmp(opts.Mode,'Area'))
         fill([cf; flipud(cf)], [vmax(ch,:),fliplr(vm(ch,:))]',[0.3 0.3 0.3]);
         ax=gca();
         set(ax, 'XScale', 'log');
         set(ax, 'YScale', 'log');
-        legend({'Mean-Max'},'location','SouthWest','EdgeColor','white','Color','white');
+        legend({sprintf('Mean - %d%%',opts.Percentile)},'location','SouthWest','EdgeColor','white','Color','white');
     end
     
     xlabel('Frequency (Hz)');

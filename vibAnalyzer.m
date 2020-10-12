@@ -118,6 +118,7 @@ for f=f_zero:nrfiles
                 % display a message
                 pause_time = attempt * 1;
                 fprintf('Error accessing %s, pausing for %.0ds\n',filename,pause_time);
+                skip_file = false;
                 pause(pause_time);
             elseif(strcmp(err.identifier, 'MATLAB:load:unableToReadMatFile'))
                 skip_file = true;
@@ -275,7 +276,10 @@ for f=f_zero:nrfiles
         end
     end
 end
-waitbar(f/nrfiles,wb,sprintf('Finished processing (%.0d of %.0d)',f,nrfiles));
+
+if(~(isempty(f)))
+    waitbar(f/nrfiles,wb,sprintf('Finished processing (%.0d of %.0d)',f,nrfiles));
+end
 
 save(settings.output_file,'acq_times',...
     'integr_disp','rms_disp','p2p_disp','f',...

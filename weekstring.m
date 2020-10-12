@@ -15,7 +15,7 @@ function weekstr = weekstring(switch_day, switch_hour)
 %   Davide Crivelli
 %   davide.crivelli@diamond.ac.uk
 %
-%   For details and usage see https://gitlab.diamond.ac.uk/mca67379/viblogger 
+%   For details and usage see https://gitlab.diamond.ac.uk/mca67379/viblogger
 %
 %   see also VIBLOGGER, VIBANALYZER, SENSORS_DB
 
@@ -34,7 +34,7 @@ if dist > 0
 end
 
 switch_datetime = today_date + days(dist);
-switch_datetime.Hour = switch_hour; 
+switch_datetime.Hour = switch_hour;
 switch_datetime.Minute = 0;
 switch_datetime.Second = 0;
 
@@ -48,4 +48,3 @@ end
 
 
 end
-

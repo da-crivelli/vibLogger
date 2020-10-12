@@ -65,7 +65,18 @@ else
 end
 
 if(not(settings.RESET_PROCESSED) && exist(settings.output_file,'file'))
-    load(settings.output_file);
+    try
+        load(settings.output_file);
+    catch err
+        if(strcmp(err.identifier, 'MATLAB:load:unableToReadMatFile'))
+            % if the file is broken we just delete it and pretend that we
+            % are resetting it
+            settings.RESET_PROCESSED = true;
+        else
+            fprintf(err.identifier);
+            rethrow(err);
+        end
+    end
 end
 
 if(settings.is_velo)

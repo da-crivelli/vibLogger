@@ -58,7 +58,7 @@ for ch=1:nr_chans
         legend({'Mean','+\sigma',sprintf('%d%%',opts.Percentile)},'location','SouthWest','EdgeColor','white','Color','white');
         
     elseif(strcmp(opts.Mode,'Area'))
-        fill([cf; flipud(cf)], [vmax(ch,:),fliplr(vm(ch,:))]',[0.3 0.3 0.3]);
+        fill([cf; flipud(cf)], [vperc(ch,:),fliplr(vm(ch,:))]',[0.3 0.3 0.3]);
         ax=gca();
         set(ax, 'XScale', 'log');
         set(ax, 'YScale', 'log');

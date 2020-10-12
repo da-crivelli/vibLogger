@@ -96,6 +96,7 @@ for f=f_zero:nrfiles
             filename = strcat(settings.data_folder,filesep,files(f,:));
             data = load(filename);
             success = true;
+            skip_file = false;
         catch err
             attempt = attempt + 1;
             if(strcmp(err.identifier, 'MATLAB:load:couldNotReadFile') ||...
@@ -106,11 +107,18 @@ for f=f_zero:nrfiles
                 pause_time = attempt * 1;
                 fprintf('Error accessing %s, pausing for %.0ds\n',filename,pause_time);
                 pause(pause_time);
+            elseif(strcmp(err.identifier, 'MATLAB:load:unableToReadMatFile'))
+                skip_file = true;
+                fprintf('Unable to read %s - skipping - consider removing the file if this happens again\n',filename);
             else
                 fprintf(err.identifier);
                 rethrow(err);
             end
         end
+    end
+    
+    if(skip_file)
+        continue;   % this is horrible but it works... some errors will trigger a skip rather than a retry
     end
     
     if(~success)    

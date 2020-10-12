@@ -10,6 +10,7 @@ function fig = plot_vc_curves(cf, velo_octave_spec, varargin)
 %       'FigureName': 'figure name'
 %       'YLabel': 'Y label'
 %       'Legend': {'chan 1', 'chan 2'...} (channel names)
+%       'Mode': 'Lines' or 'Area' (plot mode)
 %
 %   Davide Crivelli
 %   davide.crivelli@diamond.ac.uk
@@ -19,14 +20,16 @@ function fig = plot_vc_curves(cf, velo_octave_spec, varargin)
 %   see also: VIBPLOTS, VIBLOGGER
 
 % VC levels for VC curves (should not need changing)
-vc_curves = [0.78 0.39 0.195 0.097 0.048 0.024 0.012];
-vc_labels = {'VC-G','VC-H','VC-I','VC-J','VC-K','VC-L','VC-M'};
+vc_curves = [3.12 1.56 0.78 0.39 0.195 0.097 0.048 0.024 0.012];
+vc_labels = {'VC-E','VC-F','VC-G','VC-H','VC-I','VC-J','VC-K','VC-L','VC-M'};
 
 p = inputParser;
 
 addParameter(p,'FigureName','Figure',@ischar);
 addParameter(p,'YLabel','Y',@ischar);
 addParameter(p,'Legend',{''});
+addParameter(p,'Mode','Lines', @ischar);
+addParameter(p,'Percentile',99, @(x)( (x>0) & (x<=100) ));
 
 parse(p,varargin{:});
 opts = p.Results;
@@ -35,11 +38,11 @@ nr_chans = size(velo_octave_spec,1);
 
 velo_octave_spec_mean = mean(velo_octave_spec,3);
 velo_octave_spec_std = std(velo_octave_spec,0,3);
-velo_octave_spec_max = max(velo_octave_spec,[],3);
+velo_octave_spec_perc = prctile(velo_octave_spec,opts.Percentile,3);
 
-vm = 10*log10(velo_octave_spec_mean);
-vu = 10*log10(velo_octave_spec_mean + velo_octave_spec_std);
-vmax = 10*log10(velo_octave_spec_max);
+vm = velo_octave_spec_mean;
+vu = velo_octave_spec_mean + velo_octave_spec_std;
+vperc = velo_octave_spec_perc;
 
 yl = [Inf 0];
 
@@ -47,12 +50,20 @@ fig = figure('name',opts.FigureName);
 for ch=1:nr_chans
     subplot(1,nr_chans,ch);
     
-    semilogx(cf,vm(ch,:),'LineWidth',2);
-    hold on;
-    semilogx(cf,vu(ch,:));
-    semilogx(cf,vmax(ch,:));
-    
-    legend({'Mean','+\sigma','max'},'location','SouthWest','EdgeColor','white','Color','white');
+    if(strcmp(opts.Mode, 'Lines'))
+        loglog(cf,vm(ch,:),'LineWidth',2);
+        hold on;
+        loglog(cf,vu(ch,:));
+        loglog(cf,vperc(ch,:));
+        legend({'Mean','+\sigma',sprintf('%d%%',opts.Percentile)},'location','SouthWest','EdgeColor','white','Color','white');
+        
+    elseif(strcmp(opts.Mode,'Area'))
+        fill([cf; flipud(cf)], [vmax(ch,:),fliplr(vm(ch,:))]',[0.3 0.3 0.3]);
+        ax=gca();
+        set(ax, 'XScale', 'log');
+        set(ax, 'YScale', 'log');
+        legend({sprintf('Mean - %d%%',opts.Percentile)},'location','SouthWest','EdgeColor','white','Color','white');
+    end
     
     xlabel('Frequency (Hz)');
     ylabel(opts.YLabel);
@@ -61,8 +72,8 @@ for ch=1:nr_chans
     hold on;
     xx = xlim();
     for cvc = 1:length(vc_curves)
-        plot(xx,[10*log10(vc_curves(cvc)) 10*log10(vc_curves(cvc))],'--k','HandleVisibility','off');
-        text(xx(2),10*log10(vc_curves(cvc)),vc_labels{cvc});
+        loglog(xx,[vc_curves(cvc) vc_curves(cvc)],'--k','HandleVisibility','off');
+        text(xx(2),vc_curves(cvc),vc_labels{cvc});
     end
     
     %equalising Y limit
@@ -76,6 +87,7 @@ end
 for(ch=1:nr_chans)
     subplot(1,nr_chans,ch);
     ylim(yl);
+    
 end
 
 

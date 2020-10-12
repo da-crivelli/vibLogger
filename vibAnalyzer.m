@@ -72,6 +72,7 @@ if(not(settings.RESET_PROCESSED) && exist(settings.output_file,'file'))
             % if the file is broken we just delete it and pretend that we
             % are resetting it
             settings.RESET_PROCESSED = true;
+            fprintf('Output file looks corrupted. Deleting and reprocessing\n');
         else
             fprintf(err.identifier);
             rethrow(err);

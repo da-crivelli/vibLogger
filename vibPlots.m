@@ -15,15 +15,18 @@
 %	  // probability plot params
 %     prob_chart_distribution (string): probability chart distribution. 'none', 'LogNormal', ...
 %     prob_threshold (float): probability threshold for calculating %prob values
-%     
+%
 %     freq_band_slice (array of float): sets bands for band-passed RMS plots
 %
 %     hour_slices (array of float, 0 to 24): hours slices for by-hour statistics plots
 %
-%     transmiss_range (2x1 array): frequency range for limiting
-%     transmissibility plots
+%     // transmissibility
+%     transmiss_range (2x1 array): frequency range for limiting transmissibility plots
 %     coherence_filter (float 0-1): value at which to filter coherence for
 %     highlighting in transmissibility plots
+%
+%     // display
+%     vc_mode: 'Area' or 'Lines' ('Area' shades the area between the mean-max lines);
 %
 %   Available plots:
 %     all: all available plots
@@ -41,7 +44,7 @@
 %   Davide Crivelli
 %   davide.crivelli@diamond.ac.uk
 %
-%   For details and usage see https://gitlab.diamond.ac.uk/mca67379/viblogger 
+%   For details and usage see https://gitlab.diamond.ac.uk/mca67379/viblogger
 %
 %   see also VIBLOGGER, VIBANALYZER, SENSORS_DB
 
@@ -50,7 +53,7 @@ function vibPlots(opts)
 
 
 %% variable prep and config
-load(opts.processed_file);  
+load(opts.processed_file);
 nrchans = size(rms_disp,1);
 
 % if we're looking for a specific datetime range, at the moment the best
@@ -61,22 +64,22 @@ if(isfield(opts,'datetime_range'))
     start_time_file = find(acq_times_file >= opts.datetime_range{1},1);
     end_time = find(acq_times < opts.datetime_range{2},1,'last');
     end_time_file = find(acq_times_file < opts.datetime_range{2},1,'last');
-    
+
     acq_times = acq_times(start_time:end_time);
     acq_times_file = acq_times_file(start_time_file:end_time_file);
-    
+
     p2p_disp = p2p_disp(:,start_time:end_time);
     rms_disp = rms_disp(:,start_time:end_time);
-    
+
     psd_vib = psd_vib(:,:,start_time_file:end_time_file);
     psd_vib_disp = psd_vib_disp(:,:,start_time_file:end_time_file);
     integr_disp = integr_disp(:,:,start_time_file:end_time_file);
-    
+
     velo_octave_spec = velo_octave_spec(:,:,start_time_file:end_time_file);
 end
 
 % are these needed at all?
-%fupper = third_oct_bands_ctr * fd; 
+%fupper = third_oct_bands_ctr * fd;
 %flower = third_oct_bands_ctr / fd;
 
 figures = containers.Map;
@@ -91,8 +94,8 @@ end
 
 if(isfield(opts,'datetime_range'))
     opts.fg_output_folder = strcat(opts.fg_output_folder, ...
-        datestr(opts.datetime_range{1},'yyyyMMdd'), '_',...
-        datestr(opts.datetime_range{2},'yyyyMMdd'),filesep);
+        datestr(opts.datetime_range{1},'yyyymmdd'), '_',...
+        datestr(opts.datetime_range{2},'yyyymmdd'),filesep);
 end
 
 if(isfield(opts,'fg_output_folder'))
@@ -112,6 +115,8 @@ if(isfield(opts,'SAVE_PLOTS'))
         end
         diary(diary_file);
     end
+    diary(diary_file);
+    diary on
 end
 
 %% 'time': time driven data
@@ -179,7 +184,7 @@ if(any(strcmp(opts.plots,'psd')) || plot_all)
 
     figures('mean_disp_PSD') = plot_psd(ff, squeeze(mean(psd_vib_disp,3)),...
         'FigureName','mean_disp_PSD',...
-        'YLabel','Displacement/freq (nm/Hz)',...
+        'YLabel','Displacement PSD (nm^2/Hz)',...
         'Legend',channel_names);
 end
 
@@ -199,10 +204,15 @@ end
 %% 'vc_curves': VC curves / third octave plots
 
 if(any(strcmp(opts.plots,'vc_curves')) || plot_all)
+    vc_mode = 'Lines';
+    if(isfield(opts,'vc_mode'))
+        vc_mode = opts.vc_mode;
+    end
     figures('VC_curves') = plot_vc_curves(cf, velo_octave_spec, ...
         'FigureName','VC_curves',...
-        'YLabel','RMS velocity (dB re 1 um/s)',...
-        'Legend',channel_names);
+        'YLabel','1/3 octave RMS velocity (um/s)',...
+        'Legend',channel_names,...
+        'Mode',vc_mode);
 end
 
 
@@ -217,7 +227,7 @@ if(any(strcmp(opts.plots,'band_rms')) || plot_all)
             freq_slice(chan,fbin,:) = sum(psd_vib_disp(chan,bin_idxs,:),2);
             freq_slice_legend{fbin} = sprintf('%dHz - %dHz',opts.freq_band_slice(fbin), opts.freq_band_slice(fbin+1));
         end
-    
+
         fig_name = sprintf('band_RMS_ch%d',chan);
         figures(fig_name) = plot_timeseries_hist(...
             acq_times_file, squeeze(freq_slice(chan,:,:)),...
@@ -231,7 +241,7 @@ end
 %% 'distributions_hourly': by hour of day
 
 if(any(strcmp(opts.plots,'distributions_hourly')) || plot_all)
-    hourOfDay = hour(acq_times); 
+    hourOfDay = hour(acq_times);
     for ch=1:nrchans
         for hh=1:(length(opts.hour_slices)-1)
             b = [opts.hour_slices(hh),opts.hour_slices(hh+1)]; %[start, end] of desired time bounds (24 hr format)
@@ -239,10 +249,10 @@ if(any(strcmp(opts.plots,'distributions_hourly')) || plot_all)
             rms_bt = rms_disp(ch,:);
             rms_bt(~selectedTimes) = NaN;
             rms_bytime{hh} = rms_bt';
-            
+
             hours_legend{hh} = sprintf('%d-%d hours (nm)',b(1),b(2));
         end
-        
+
         fig_name = sprintf('RMS_by_time_ch%d',ch);
         figures(fig_name) = plot_prob_distribution(cell2mat(rms_bytime),...
             'FigureName',fig_name,...
@@ -265,14 +275,14 @@ if(any(strcmp(opts.plots,'distributions_weekday')) || plot_all)
             else
                 dname = 'n/a';
             end
-            
+
             rms_bd = rms_disp(ch,:);
             rms_bd(~selectedTimes) = NaN;
             rms_byday{dd} = rms_bd';
-            
+
             days_legend{dd} = dname;%sprintf('%d-%d hours (nm)',b(1),b(2));
         end
-        
+
         fig_name = sprintf('RMS_by_weekday_ch%d',ch);
         figures(fig_name) = plot_prob_distribution(cell2mat(rms_byday),...
             'FigureName',fig_name,...
@@ -317,16 +327,17 @@ if(isfield(opts,'SAVE_PLOTS'))
         for fg=1:length(figures)
             fgr = figure(figures(fg_names{fg}));
             fgr.WindowState = 'maximized';
+            fgr.Position = [10 10 1200 600];
 
             for chi = 1:length(fgr.Children)
                 axe = fgr.Children(chi);
-                set(axe,'FontSize',14);
+                set(axe,'FontSize',10);
             end
 
             pause(1);
             set(fgr,'Units','Inches');
-            pos = get(fgr,'Position');        
-            set(fgr,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)])        
+            pos = get(fgr,'Position');
+            set(fgr,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)])
             if(opts.SAVE_PDF)
                 print(strcat(opts.fg_output_folder,fg_names{fg}),'-dpdf','-r0');
             end
@@ -340,5 +351,5 @@ if(isfield(opts,'SAVE_PLOTS'))
         diary off
     end
 end
-    
+
 end

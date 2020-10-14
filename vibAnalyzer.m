@@ -65,7 +65,19 @@ else
 end
 
 if(not(settings.RESET_PROCESSED) && exist(settings.output_file,'file'))
-    load(settings.output_file);
+    try
+        load(settings.output_file);
+    catch err
+        if(strcmp(err.identifier, 'MATLAB:load:unableToReadMatFile'))
+            % if the file is broken we just delete it and pretend that we
+            % are resetting it
+            settings.RESET_PROCESSED = true;
+            fprintf('Output file looks corrupted. Deleting and reprocessing\n');
+        else
+            fprintf(err.identifier);
+            rethrow(err);
+        end
+    end
 end
 
 if(settings.is_velo)
@@ -96,18 +108,30 @@ for f=f_zero:nrfiles
             filename = strcat(settings.data_folder,filesep,files(f,:));
             data = load(filename);
             success = true;
+            skip_file = false;
         catch err
             attempt = attempt + 1;
-            if(strcmp(err.identifier, 'MATLAB:load:couldNotReadFile'))
+            if(strcmp(err.identifier, 'MATLAB:load:couldNotReadFile') ||...
+                strcmp(err.identifier, 'MATLAB:load:couldNotReadFileSystemMessage') ||...
+                strcmp(err.identifier, 'MATLAB:load:cantReadFile'))
                 % pause for a bit1 second times the current iteration no.
                 % display a message
                 pause_time = attempt * 1;
                 fprintf('Error accessing %s, pausing for %.0ds\n',filename,pause_time);
+                skip_file = false;
                 pause(pause_time);
+            elseif(strcmp(err.identifier, 'MATLAB:load:unableToReadMatFile'))
+                skip_file = true;
+                fprintf('Unable to read %s - skipping - consider removing the file if this happens again\n',filename);
             else
+                fprintf(err.identifier);
                 rethrow(err);
             end
         end
+    end
+    
+    if(skip_file)
+        continue;   % this is horrible but it works... some errors will trigger a skip rather than a retry
     end
     
     if(~success)    
@@ -252,7 +276,10 @@ for f=f_zero:nrfiles
         end
     end
 end
-waitbar(f/nrfiles,wb,sprintf('Finished processing (%.0d of %.0d)',f,nrfiles));
+
+if(~(isempty(f)))
+    waitbar(f/nrfiles,wb,sprintf('Finished processing (%.0d of %.0d)',f,nrfiles));
+end
 
 save(settings.output_file,'acq_times',...
     'integr_disp','rms_disp','p2p_disp','f',...

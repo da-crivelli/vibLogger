@@ -52,6 +52,7 @@ function [integr, freq, spec_disp, rms_disp] = fft_integrated_accel2disp(data, f
         end
     else
         spec_disp = spec' ./ ((2*pi.*freq).^2);
+        %spec_disp = spec' ./ ((2*pi.*freq).^4);
     end
     
     % highpass filter the displacement data
@@ -60,8 +61,12 @@ function [integr, freq, spec_disp, rms_disp] = fft_integrated_accel2disp(data, f
     
     % integrate the displacement
     integr = cumsum( sqrt(0.5 .* ( spec_disp ).^2 ),2,direction);
+    %integr = sqrt( cumsum( spec_disp.*fsamp,2,direction));
  
     % RMS is the total sum of integrated displacement (or, end point)
     rms_disp = integr(:,end);
+    
+    
+    spec_disp = spec' ./ ((2*pi.*freq).^4);
     
 end

@@ -19,10 +19,10 @@ settings.SAVE_PDF = false;
 settings.prob_chart_distribution = 'LogNormal';
 settings.prob_threshold = 0.99;
 
-settings.plots = {'transmissibility'};
-%settings.plots = {'time','integrated'};
+%settings.plots = {'transmissibility'};
+settings.plots = {'time','psd','integrated'};
 
-settings.integrated_direction = 'decreasing';
+settings.integrated_direction = 'increasing';
 
 settings.coherence_filter = 0.2;
 

@@ -28,7 +28,7 @@ addParameter(p,'FigureName','Figure',@ischar);
 addParameter(p,'YLabel','Y',@ischar);
 addParameter(p,'Legend',{''});
 addParameter(p,'ProbChart','none');
-addParameter(p,'ProbThreshold',0.99,@(x) (x>=0 & x<1));
+addParameter(p,'ProbThreshold',0.99,@(x) (all(x>=0) & all(x<1)));
 
 parse(p,varargin{:});
 
@@ -57,6 +57,9 @@ end
 %% histograms
 
 fprintf('\n== Stats for %s ==\n',opts.YLabel);
+for p=1:length(opts.ProbThreshold)
+    fprintf('\t%0.1f%%',opts.ProbThreshold(p)*100);
+end
 for c=1:nr_chans
     
     c_nan = isnan(y(c,:));
@@ -65,20 +68,23 @@ for c=1:nr_chans
     hold on;
 
     % find the cumulate probability percent
-    cv = find(cumsum(h(c).Values.*h(c).BinWidth)>opts.ProbThreshold,1);
-    
-    if(~isempty(cv))
-        prob(c) = h(c).BinEdges(cv);
-    else
-        prob(c) = NaN;
+    fprintf('\n%s\t', opts.Legend{c});
+    for p=1:length(opts.ProbThreshold)
+        cv = find(cumsum(h(c).Values.*h(c).BinWidth)>opts.ProbThreshold(p),1);
+
+        if(~isempty(cv))
+            prob(c,p) = h(c).BinEdges(cv);
+        else
+            prob(c,p) = NaN;
+        end
+
+        fprintf('%2.2f\t',prob(c,p));
     end
-    
-    fprintf('%0.2f%%, %s = %2.2f\n', opts.ProbThreshold*100, opts.Legend{c}, prob(c));
-       
     xl(c,:) = xlim();
 end
+fprintf('\n');
 
-xlim([0 max(prob)]);
+xlim([0 max(prob,[],'all')]);
 grid on;
 
 xlabel(opts.YLabel);

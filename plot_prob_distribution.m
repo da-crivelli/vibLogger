@@ -28,7 +28,7 @@ addParameter(p,'FigureName','Figure',@ischar);
 addParameter(p,'YLabel','Y',@ischar);
 addParameter(p,'Legend',{''});
 addParameter(p,'ProbChart','none');
-addParameter(p,'ProbThreshold',0.99,@(x) (all(x>=0) & all(x<1)));
+addParameter(p,'ProbThreshold',0.99,@(x) (all(x>=0) & all(x<=1)));
 
 parse(p,varargin{:});
 

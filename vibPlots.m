@@ -100,15 +100,19 @@ end
 
 %% creates / prepares the figures output directory
 
-if(isfield(opts,'datetime_range'))
-    opts.fg_output_folder = strcat(opts.fg_output_folder, ...
-        datestr(opts.datetime_range{1},'yyyymmdd'), '_',...
-        datestr(opts.datetime_range{2},'yyyymmdd'),filesep);
-end
+if(isfield(opts,'SAVE_PLOTS'))
+    if(opts.SAVE_PLOTS)
+        if(isfield(opts,'datetime_range'))
+            opts.fg_output_folder = strcat(opts.fg_output_folder, ...
+                datestr(opts.datetime_range{1},'yyyymmdd'), '_',...
+                datestr(opts.datetime_range{2},'yyyymmdd'),filesep);
+        end
 
-if(isfield(opts,'fg_output_folder'))
-    if(~isfolder(opts.fg_output_folder) && opts.SAVE_PLOTS)
-        mkdir(opts.fg_output_folder);
+        if(isfield(opts,'fg_output_folder'))
+            if(~isfolder(opts.fg_output_folder) && opts.SAVE_PLOTS)
+                mkdir(opts.fg_output_folder);
+            end
+        end
     end
 end
 
@@ -215,11 +219,16 @@ if(any(strcmp(opts.plots,'vc_curves')) || plot_all)
     if(isfield(opts,'vc_mode'))
         vc_mode = opts.vc_mode;
     end
+    perc = 0.99;
+    if(isfield(opts,'prob_threshold'))
+        perc = opts.prob_threshold;
+    end
     figures('VC_curves') = plot_vc_curves(cf, velo_octave_spec, ...
         'FigureName','VC_curves',...
         'YLabel','1/3 octave RMS velocity (um/s)',...
         'Legend',channel_names,...
-        'Mode',vc_mode);
+        'Mode',vc_mode,...
+        'Percentile',perc);
 end
 
 

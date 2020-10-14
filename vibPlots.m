@@ -49,11 +49,19 @@
 %   see also VIBLOGGER, VIBANALYZER, SENSORS_DB
 
 
-function vibPlots(opts)
+function vibPlots(opts, cached_data)
 
 
 %% variable prep and config
-load(opts.processed_file);
+if(~exist('cached_data','var'))
+    load(opts.processed_file);
+else
+    fn = fieldnames(cached_data);
+    for k=1:length(fn)
+        eval([fn{k} '=cached_data.',fn{k},';']);
+    end
+end
+
 nrchans = size(rms_disp,1);
 
 % if we're looking for a specific datetime range, at the moment the best
@@ -114,9 +122,8 @@ if(isfield(opts,'SAVE_PLOTS'))
             delete(diary_file);
         end
         diary(diary_file);
+        diary on
     end
-    diary(diary_file);
-    diary on
 end
 
 %% 'time': time driven data

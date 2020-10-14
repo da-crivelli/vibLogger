@@ -36,4 +36,5 @@ settings.hour_slices = [0 3 8 16 24];
 
 
 %% run the plotter
-vibPlots(settings);
+d = load('example_output\example.mat');
+vibPlots(settings,d);

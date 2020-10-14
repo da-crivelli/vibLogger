@@ -13,7 +13,7 @@ settings.output_file = 'example_output/example.mat'; % where to save the process
 %settings.nrfiles = 10;  % number of files to analyse. Comment out to process all files.
 
 settings.RESET_PROCESSED = true; % reset the output_file data
-settings.CHECK_PLOTS = true; % plots some debugging plots. warning: "TRUE" 
+settings.CHECK_PLOTS = false; % plots some debugging plots. warning: "TRUE" 
                     % may just crash Matlab if there's a lot of files
 
 %% frequency and data integration related stuff
@@ -36,4 +36,7 @@ settings.outputs = [2];
 settings.winoverlap = 0.5;
 
 %% run the analyzer
+
+tic
 vibAnalyzer(settings);
+toc

@@ -1,4 +1,4 @@
-function [integr, freq, spec_disp, rms_disp] = fft_integrated_accel2disp(data, fsamp, mode, direction)
+function [integr, freq, spec_disp, rms_disp] = fft_integrated_accel2disp(data, fsamp, highpass, mode, direction)
 %FFT_INTEGRATED_ACCEL2DISP converts acceleration input data into displacement FFT
 %   [integr, freq, spec, rms_disp] = FFT_INTEGRATED_ACCEL2DISP(accel_data) returns the integrated
 %   displacement fft from acceleration data, for each channel.
@@ -11,7 +11,11 @@ function [integr, freq, spec_disp, rms_disp] = fft_integrated_accel2disp(data, f
 %   [integr, freq, spec] = FFT_INTEGRATED_ACCEL2DISP(accel_data, fsamp) specifies the
 %   sampling frequency (assumes 1 otherwise)
 %
-%   [integr, freq, spec] = FFT_INTEGRATED_ACCEL2DISP(accel_data, fsamp, 'velocity') specifies the
+%   [integr, freq, spec] = FFT_INTEGRATED_ACCEL2DISP(accel_data, fsamp, highpass) 
+%   specifies the high pass frequency (in Hz) to filter out for integration (see 1/f
+%   noise)
+%
+%   [integr, freq, spec] = FFT_INTEGRATED_ACCEL2DISP(accel_data, fsamp, highpass, 'velocity') specifies the
 %   sampling frequency (assumes 1 otherwise)
 %
 %   Note: this function is useful when 1/f noise is a concern. With ideal
@@ -48,12 +52,21 @@ function [integr, freq, spec_disp, rms_disp] = fft_integrated_accel2disp(data, f
         end
     else
         spec_disp = spec' ./ ((2*pi.*freq).^2);
+        %spec_disp = spec' ./ ((2*pi.*freq).^4);
     end
+    
+    % highpass filter the displacement data
+    fpass = find(freq >= highpass,1);
+    spec_disp(:,1:fpass) = 0;
     
     % integrate the displacement
     integr = cumsum( sqrt(0.5 .* ( spec_disp ).^2 ),2,direction);
+    %integr = sqrt( cumsum( spec_disp.*fsamp,2,direction));
  
     % RMS is the total sum of integrated displacement (or, end point)
     rms_disp = integr(:,end);
+    
+    
+    spec_disp = spec' ./ ((2*pi.*freq).^4);
     
 end

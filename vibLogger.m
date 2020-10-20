@@ -16,6 +16,7 @@
 %     fsamp (int): sampling frequency per channel in Hz (all channels)
 %     recording_time (float): time to record in seconds per block
 %     timeout (float): max acquisition time in seconds
+%     datetime_timeout(string): date & time when recording stops (overrides timeout)
 %
 %     output_folder (string): a folder where to save the results
 %     live_preview (bool): enables live graphs
@@ -44,13 +45,14 @@ function vibLogger(settings)
 
     % create session & initialise device
     s = daq.createSession('ni');
+    channel_id = 1;
 
     for dev = 1:length(settings.device_ids)
         for ch=1:length(settings.channels{dev})
             if(isstr(settings.channel_type))
                 this_channel_type = settings.channel_type;
             else
-                this_channel_type = settings.channel_type{ch};
+                this_channel_type = settings.channel_type{channel_id};
             end
             
             addAnalogInputChannel(s, settings.device_ids{dev}, ...
@@ -58,8 +60,9 @@ function vibLogger(settings)
                                      this_channel_type);
                                  
             if strcmp(this_channel_type,'IEPE')
-                s.Channels(ch).ExcitationCurrent = settings.iepe_excitation_current;
+                s.Channels(channel_id).ExcitationCurrent = settings.iepe_excitation_current;
             end
+            channel_id = channel_id+1;
         end
     end
 
@@ -83,6 +86,11 @@ function vibLogger(settings)
             @(src,event) display_data(event.TimeStamps, event.Data, settings));
     end
 
+    % set how many samples to take
+    if(isfield(settings, 'datetime_timeout'))
+        settings.timeout = ceil(seconds(settings.datetime_timeout - datetime('now')));
+    end
+    
     s.NotifyWhenDataAvailableExceeds = settings.recording_time*settings.fsamp;
 
     s.startBackground();

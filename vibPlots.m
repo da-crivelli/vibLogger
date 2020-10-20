@@ -20,10 +20,13 @@
 %
 %     hour_slices (array of float, 0 to 24): hours slices for by-hour statistics plots
 %
-%     transmiss_range (2x1 array): frequency range for limiting
-%     transmissibility plots
+%     // transmissibility
+%     transmiss_range (2x1 array): frequency range for limiting transmissibility plots
 %     coherence_filter (float 0-1): value at which to filter coherence for
 %     highlighting in transmissibility plots
+%
+%     // display
+%     vc_mode: 'Area' or 'Lines' ('Area' shades the area between the mean-max lines);
 %
 %   Available plots:
 %     all: all available plots
@@ -91,8 +94,8 @@ end
 
 if(isfield(opts,'datetime_range'))
     opts.fg_output_folder = strcat(opts.fg_output_folder, ...
-        datestr(opts.datetime_range{1},'yyyyMMdd'), '_',...
-        datestr(opts.datetime_range{2},'yyyyMMdd'),filesep);
+        datestr(opts.datetime_range{1},'yyyymmdd'), '_',...
+        datestr(opts.datetime_range{2},'yyyymmdd'),filesep);
 end
 
 if(~isfolder(opts.fg_output_folder) && opts.SAVE_PLOTS)
@@ -109,6 +112,7 @@ if(opts.SAVE_PLOTS)
         delete(diary_file);
     end
     diary(diary_file);
+    diary on
 end
 
 %% 'time': time driven data
@@ -176,7 +180,7 @@ if(any(strcmp(opts.plots,'psd')) || plot_all)
 
     figures('mean_disp_PSD') = plot_psd(ff, squeeze(mean(psd_vib_disp,3)),...
         'FigureName','mean_disp_PSD',...
-        'YLabel','Displacement/freq (nm/Hz)',...
+        'YLabel','Displacement PSD (nm^2/Hz)',...
         'Legend',channel_names);
 end
 
@@ -196,10 +200,15 @@ end
 %% 'vc_curves': VC curves / third octave plots
 
 if(any(strcmp(opts.plots,'vc_curves')) || plot_all)
+    vc_mode = 'Lines';
+    if(isfield(opts,'vc_mode'))
+        vc_mode = opts.vc_mode;
+    end
     figures('VC_curves') = plot_vc_curves(cf, velo_octave_spec, ...
         'FigureName','VC_curves',...
-        'YLabel','RMS velocity (dB re 1 um/s)',...
-        'Legend',channel_names);
+        'YLabel','1/3 octave RMS velocity (um/s)',...
+        'Legend',channel_names,...
+        'Mode',vc_mode);
 end
 
 
@@ -313,10 +322,11 @@ if(opts.SAVE_PLOTS)
     for fg=1:length(figures)
         fgr = figure(figures(fg_names{fg}));
         fgr.WindowState = 'maximized';
+        fgr.Position = [10 10 1200 600];
        
         for chi = 1:length(fgr.Children)
             axe = fgr.Children(chi);
-            set(axe,'FontSize',14);
+            set(axe,'FontSize',10);
         end
         
         pause(1);

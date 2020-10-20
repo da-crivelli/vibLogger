@@ -101,6 +101,8 @@ function [sens] = sensors_db(in)
                     fprintf('%s\t\t%s\t%.3d\t%s\n',sensors(k{1}).make, ...
                         sensors(k{1}).model,sensors(k{1}).sens,k{1});
                 end
+            case 'all'
+                sens = sensors;
             otherwise
                 error('Error. \nOption ''%s'' not recognised',in);
         end

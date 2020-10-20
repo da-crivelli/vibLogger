@@ -1,6 +1,6 @@
 %VIBLOGGER(settings) logs data from a NI9234 board. 
 %   supports IEPE (ICP) accelerometers
-%   
+%
 %   VIBLOGGER(settings) runs the acquisition code with settings specified
 %   in the settings structure. Parameters: (? denotes optional)
 %
@@ -11,58 +11,55 @@
 %     channel_names (cell of strings): human readable labels for channels
 %
 %     channel_type (string): type of channel. 'Voltage' for standard voltage, 'IEPE' for IEPE / ICP sensors. Applies to all channels.
-%     ? iepe_excitation_current: excitation current for ICP sensors                  
-%                    
+%     ? iepe_excitation_current: excitation current for ICP sensors
+%
 %     fsamp (int): sampling frequency per channel in Hz (all channels)
 %     recording_time (float): time to record in seconds per block
 %     timeout (float): max acquisition time in seconds
-%     datetime_timeout(string): date & time when recording stops (overrides timeout)
 %
 %     output_folder (string): a folder where to save the results
 %     live_preview (bool): enables live graphs
-%     save_data (bool): whether to save data or just run the live preview 
-%   
+%     save_data (bool): whether to save data or just run the live preview
+%
 %     // the following parameters are optional and can also be manually
 %     specified in the config.m file that gets generated at the end:
 %
 %  Davide Crivelli
 %  davide.crivelli@diamond.ac.uk
 %
-%  For details and usage see https://gitlab.diamond.ac.uk/mca67379/viblogger 
+%  For details and usage see https://gitlab.diamond.ac.uk/mca67379/viblogger
 %
 %  see also: VIBANALYZER, VIBPLOTS, SENSORS_DB
 
-function vibLogger(settings)
+function s = vibLogger(settings)
 
     if(~isfolder(settings.output_folder))
         mkdir(settings.output_folder);
     end
-    
+
     if(~exist(strcat(settings.output_folder,filesep,'config.m'),'file'))
         % autowrite config file
-        create_vib_config_file(strcat(settings.output_folder,filesep,'config.m'),settings); 
+        create_vib_config_file(strcat(settings.output_folder,filesep,'config.m'),settings);
     end
 
     % create session & initialise device
     s = daq.createSession('ni');
-    channel_id = 1;
 
     for dev = 1:length(settings.device_ids)
         for ch=1:length(settings.channels{dev})
             if(isstr(settings.channel_type))
                 this_channel_type = settings.channel_type;
             else
-                this_channel_type = settings.channel_type{channel_id};
+                this_channel_type = settings.channel_type{ch};
             end
-            
+
             addAnalogInputChannel(s, settings.device_ids{dev}, ...
                                      settings.channels{dev}(ch), ...
                                      this_channel_type);
-                                 
+
             if strcmp(this_channel_type,'IEPE')
-                s.Channels(channel_id).ExcitationCurrent = settings.iepe_excitation_current;
+                s.Channels(ch).ExcitationCurrent = settings.iepe_excitation_current;
             end
-            channel_id = channel_id+1;
         end
     end
 
@@ -71,7 +68,7 @@ function vibLogger(settings)
     % start the data acquisition session in foreground & save data afterwards
     pause('on');
     scan_count = 0;
-    
+
     s.IsContinuous = true;
 
     settings.acq_date = datetime('now');
@@ -86,15 +83,10 @@ function vibLogger(settings)
             @(src,event) display_data(event.TimeStamps, event.Data, settings));
     end
 
-    % set how many samples to take
-    if(isfield(settings, 'datetime_timeout'))
-        settings.timeout = ceil(seconds(settings.datetime_timeout - datetime('now')));
-    end
-    
     s.NotifyWhenDataAvailableExceeds = settings.recording_time*settings.fsamp;
 
     s.startBackground();
-    
+
     % wait() will timeout by throwing an error...
     try
         s.wait(settings.timeout);
@@ -113,16 +105,16 @@ end
 function save_data(time, data, settings)
 
     acq_date = settings.acq_date +seconds(time(1));
-    
+
     save_filename = strcat(settings.output_folder, ...
         filesep,datestr(acq_date,'yyyymmdd_HHMMss'),'.mat');
-    
+
     % to be removed... make it backwards compatible with the analyzer
     fsamp = settings.fsamp;
     recording_time = settings.recording_time;
-    
+
     save(save_filename,'data','time','settings','acq_date','fsamp','recording_time');
-    fprintf('saved data %s\n',save_filename);        
+    fprintf('saved data %s\n',save_filename);
 end
 
 function display_data(t, data, settings)
@@ -130,15 +122,15 @@ function display_data(t, data, settings)
     for dev=1:length(settings.device_ids)
         nrchans = nrchans + length(settings.channels{dev});
     end
-    
+
     for ch=1:nrchans
         subplot(nrchans,2,2*ch-1);
         plot(t, data(:,ch));
         ylabel(settings.channel_names{ch});
-        
+
         subplot(nrchans,2,2*ch);
         pwelch(data(:,ch),[],[],[],settings.fsamp);
-        
+
     end
 end
 

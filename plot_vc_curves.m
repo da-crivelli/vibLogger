@@ -29,16 +29,15 @@ addParameter(p,'FigureName','Figure',@ischar);
 addParameter(p,'YLabel','Y',@ischar);
 addParameter(p,'Legend',{''});
 addParameter(p,'Mode','Lines', @ischar);
-addParameter(p,'Percentile',99, @(x)( (x>0) & (x<=100) ));
+addParameter(p,'Percentile',0.99, @(x)( (x>0) & (x<=100) ));
 
 parse(p,varargin{:});
 opts = p.Results;
-
 nr_chans = size(velo_octave_spec,1);
 
 velo_octave_spec_mean = mean(velo_octave_spec,3);
 velo_octave_spec_std = std(velo_octave_spec,0,3);
-velo_octave_spec_perc = prctile(velo_octave_spec,opts.Percentile,3);
+velo_octave_spec_perc = prctile(velo_octave_spec,opts.Percentile*100,3);
 
 vm = velo_octave_spec_mean;
 vu = velo_octave_spec_mean + velo_octave_spec_std;
@@ -55,14 +54,14 @@ for ch=1:nr_chans
         hold on;
         loglog(cf,vu(ch,:));
         loglog(cf,vperc(ch,:));
-        legend({'Mean','+\sigma',sprintf('%d%%',opts.Percentile)},'location','SouthWest','EdgeColor','white','Color','white');
+        legend({'Mean','+\sigma',sprintf('%2.0f%%',opts.Percentile*100)},'location','SouthWest','EdgeColor','white','Color','white');
 
     elseif(strcmp(opts.Mode,'Area'))
-        fill([cf; flipud(cf)], [vperc(ch,:),fliplr(vm(ch,:))]',[0.3 0.3 0.3]);
+        fill([cf; flipud(cf)], [vperc(ch,:),fliplr(vm(ch,:))]',[0, 0.4470, 0.7410]);
         ax=gca();
         set(ax, 'XScale', 'log');
         set(ax, 'YScale', 'log');
-        legend({sprintf('Mean - %d%%',opts.Percentile)},'location','SouthWest','EdgeColor','white','Color','white');
+        legend({sprintf('Mean - %2.0f%%',opts.Percentile*100)},'location','SouthWest','EdgeColor','white','Color','white');
     end
 
     xlabel('Frequency (Hz)');
@@ -73,7 +72,9 @@ for ch=1:nr_chans
     xx = xlim();
     for cvc = 1:length(vc_curves)
         loglog(xx,[vc_curves(cvc) vc_curves(cvc)],'--k','HandleVisibility','off');
-        text(xx(2),vc_curves(cvc),vc_labels{cvc});
+        t = text(xx(1)+0.1,vc_curves(cvc),vc_labels{cvc});
+        %t.BackgroundColor = [1 1 1];
+        t.VerticalAlignment = 'bottom';
     end
 
     %equalising Y limit

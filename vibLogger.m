@@ -87,15 +87,18 @@ function s = vibLogger(settings)
 
     s.startBackground();
 
-    % wait() will timeout by throwing an error...
-    try
-        s.wait(settings.timeout);
-    catch err
-        if not(err.identifier == "daq:Session:timeout")
-            rethrow(err);
-        else
-            disp('Finished recording');
-            s.stop();
+    % check if the caller wants to handle the session by themselves
+    if(nargout == 0)
+        % wait() will timeout by throwing an error...
+        try
+            s.wait(settings.timeout);
+        catch err
+            if not(err.identifier == "daq:Session:timeout")
+                rethrow(err);
+            else
+                disp('Finished recording');
+                s.stop();
+            end
         end
     end
 

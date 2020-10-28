@@ -133,8 +133,10 @@ function save_data(time, this_data, settings)
     is_buffer_full = append_dataBuffer(time, this_data, settings);
     
     % This is called during every "short" loop. TODO: make asynchronous?
-    short_callback = str2func(settings.callback_shortloop);
-    short_callback(this_data);
+    if(isfield(settings,'callback_shortloop'))
+        short_callback = str2func(settings.callback_shortloop);
+        short_callback(this_data);
+    end
     
     if(is_buffer_full)
         buffer_data = get_dataBuffer();

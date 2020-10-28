@@ -16,6 +16,7 @@
 %     fsamp (int): sampling frequency per channel in Hz (all channels)
 %     recording_time (float): time to record in seconds per block
 %     timeout (float): max acquisition time in seconds
+%     datetime_timeout(string): date & time when recording stops (overrides timeout)
 %
 %     output_folder (string): a folder where to save the results
 %     live_preview (bool): enables live graphs
@@ -83,6 +84,11 @@ function s = vibLogger(settings)
             @(src,event) display_data(event.TimeStamps, event.Data, settings));
     end
 
+    if(isfield(settings, 'datetime_timeout'))
+        settings.timeout = ceil(seconds(settings.datetime_timeout - datetime('now')));
+    end
+
+    
     s.NotifyWhenDataAvailableExceeds = settings.recording_time*settings.fsamp;
 
     s.startBackground();

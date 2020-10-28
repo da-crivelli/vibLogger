@@ -98,6 +98,7 @@ function s = vibLogger(settings)
             else
                 disp('Finished recording');
                 s.stop();
+                s.release();
             end
         end
     end

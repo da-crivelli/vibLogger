@@ -26,7 +26,9 @@ settings.channel_type = 'Voltage';  % 'Voltage' for standard voltage
 %settings.iepe_excitation_current = .004;                         
                         
 settings.fsamp = 2048;   % sampling frequency in Hz
-settings.recording_time = 1; % time to record in seconds per block
+settings.recording_time = 60; % time to record in seconds per block
+settings.update_time = 1; %time in-between plots and other functions updates
+
 settings.timeout = 200;   % max acquisition time in seconds
 
 settings.output_folder = '.'; %where to save the results

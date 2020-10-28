@@ -15,6 +15,8 @@
 %
 %     fsamp (int): sampling frequency per channel in Hz (all channels)
 %     recording_time (float): time to record in seconds per block
+%     update_time (float): time between updates (used to fire the plots and
+%       the EPICS callback functions)
 %     timeout (float): max acquisition time in seconds
 %     datetime_timeout(string): date & time when recording stops (overrides timeout)
 %
@@ -34,6 +36,8 @@
 
 function s = vibLogger(settings)
 
+    clear global dataBuffer;
+
     if(~isfolder(settings.output_folder))
         mkdir(settings.output_folder);
     end
@@ -41,6 +45,10 @@ function s = vibLogger(settings)
     if(~exist(strcat(settings.output_folder,filesep,'config.m'),'file'))
         % autowrite config file
         create_vib_config_file(strcat(settings.output_folder,filesep,'config.m'),settings);
+    end
+    
+    if(~isfield(settings, 'update_time'))
+        settings.update_time = settings.recording_time;
     end
 
     % create session & initialise device
@@ -73,14 +81,20 @@ function s = vibLogger(settings)
     s.IsContinuous = true;
 
     settings.acq_date = datetime('now');
+    
+    nrchans = 0;
+    for dev=1:length(settings.device_ids)
+        nrchans = nrchans + length(settings.channels{dev});
+    end    
+    settings.nrchans = nrchans;
 
     if settings.save_data
-        lh = addlistener(s,'DataAvailable', ...
+        lh_save = addlistener(s,'DataAvailable', ...
             @(src,event) save_data(event.TimeStamps, event.Data, settings));
     end
 
     if settings.live_preview
-        lh = addlistener(s,'DataAvailable', ...
+        lh_display = addlistener(s,'DataAvailable', ...
             @(src,event) display_data(event.TimeStamps, event.Data, settings));
     end
 
@@ -88,8 +102,8 @@ function s = vibLogger(settings)
         settings.timeout = ceil(seconds(settings.datetime_timeout - datetime('now')));
     end
 
-    
-    s.NotifyWhenDataAvailableExceeds = settings.recording_time*settings.fsamp;
+    % fire the event every update_time 
+    s.NotifyWhenDataAvailableExceeds = ceil(settings.update_time*settings.fsamp);
 
     s.startBackground();
 
@@ -112,19 +126,26 @@ function s = vibLogger(settings)
 end
 
 
-function save_data(time, data, settings)
+function save_data(time, this_data, settings)
+    is_buffer_full = append_dataBuffer(time, this_data, settings);
+    
+    if(is_buffer_full)
+        buffer_data = get_dataBuffer();
+        settings = buffer_data.settings;
+        data = buffer_data.data;
+        
+        acq_date = settings.acq_date +seconds(time(1));
 
-    acq_date = settings.acq_date +seconds(time(1));
+        save_filename = strcat(settings.output_folder, ...
+            filesep,datestr(acq_date,'yyyymmdd_HHMMss'),'.mat');
 
-    save_filename = strcat(settings.output_folder, ...
-        filesep,datestr(acq_date,'yyyymmdd_HHMMss'),'.mat');
+        % to be removed... make it backwards compatible with the analyzer
+        fsamp = settings.fsamp;
+        recording_time = settings.recording_time;
 
-    % to be removed... make it backwards compatible with the analyzer
-    fsamp = settings.fsamp;
-    recording_time = settings.recording_time;
-
-    save(save_filename,'data','time','settings','acq_date','fsamp','recording_time');
-    fprintf('saved data %s\n',save_filename);
+        save(save_filename,'data','time','settings','acq_date','fsamp','recording_time');
+        fprintf('saved data %s\n',save_filename);
+    end
 end
 
 function display_data(t, data, settings)
@@ -165,4 +186,40 @@ function create_vib_config_file(filename,settings)
 
     fclose(cfg);
 
+end
+
+function is_full = append_dataBuffer(time, data, settings)
+    global dataBuffer;
+    % if dataBuffer is empty, create it
+    if(isempty(dataBuffer))
+        dataBuffer.time = time;
+        dataBuffer.settings = settings;
+        dataBuffer.max_size = settings.recording_time*settings.fsamp; % max size before dumping in .mat file
+        
+        dataBuffer.data = zeros(); % preallocate data
+        
+        dataBuffer.data = zeros(dataBuffer.max_size, ...
+            settings.nrchans);
+        
+        
+        dataBuffer.lastPos = 0; % last time index
+    end
+    % if dataBuffer is not empty, append data
+    dataBuffer.data( (dataBuffer.lastPos+1): (dataBuffer.lastPos+size(data,1)),:) = ...
+        data;
+    dataBuffer.lastPos = dataBuffer.lastPos+size(data,1);
+    
+    % check dataBuffer.size vs dataBuffer.max_size
+    if(dataBuffer.lastPos >= dataBuffer.max_size)
+        is_full = true;
+    else
+        is_full = false;
+    end
+end
+
+function data = get_dataBuffer()
+    global dataBuffer;
+    
+    data = dataBuffer;
+    clear global dataBuffer;
 end

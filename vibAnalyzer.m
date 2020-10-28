@@ -34,6 +34,7 @@
 
 function vibAnalyzer(settings)
 
+addpath(strcat(fileparts(which(mfilename)),filesep,'utils'));
 run(strcat(settings.data_folder,filesep,'config.m'));
 
 % check for legacy configuration and throw warning

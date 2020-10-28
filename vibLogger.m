@@ -35,6 +35,8 @@
 %  see also: VIBANALYZER, VIBPLOTS, SENSORS_DB
 
 function s = vibLogger(settings)
+    
+    addpath(strcat(fileparts(which(mfilename)),filesep,'utils'));
 
     clear global dataBuffer;
 

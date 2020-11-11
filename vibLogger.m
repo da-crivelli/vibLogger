@@ -135,7 +135,7 @@ function save_data(time, this_data, settings)
     % This is called during every "short" loop. TODO: make asynchronous?
     if(isfield(settings,'callback_shortloop'))
         short_callback = str2func(settings.callback_shortloop);
-        short_callback(this_data);
+        short_callback(this_data, settings);
     end
     
     if(is_buffer_full)

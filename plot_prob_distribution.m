@@ -111,7 +111,8 @@ if(~(strcmp(opts.ProbChart,'none')))
         legend({opts.ProbChart,opts.Legend{c}},'Location','SouthEast',...
             'EdgeColor','white','Color','white');
         
-        p.Children(1).Color = p.ColorOrder(c,:);
+        if(c>7); cc=mod(c,7); else; cc=c; end
+        p.Children(1).Color = p.ColorOrder(cc,:);
     end
 end
 

@@ -48,6 +48,12 @@ end
 %% process files one by one
 files = ls([settings.data_folder,filesep,'*.mat']);
 
+% variable convention: (see "sources of truth"
+% https://confluence.diamond.ac.uk/pages/editpage.action?pageId=125937785)
+%
+% fft_{accel, velo, disp}: FFT calculated via fast_rms
+% rms_{accel, velo, disp}: RMS calculated via fast_rms
+
 rms_disp = [];
 integr_disp = [];
 p2p_disp = [];
@@ -55,8 +61,6 @@ psd_vib = [];
 acq_times = [];
 acq_times_file = [];
 
-%rms_disp_v2 = [];
-%p2p_disp_v2 = [];
 psd_vib_disp = [];
 
 if(~isfield(settings,'nrfiles'))
@@ -140,76 +144,65 @@ for f=f_zero:nrfiles
     end
     
     % first - remove DC offsets
-    y = detrend(data.data);
-    y = y ./ conv_factor;
+    % y = detrend(data.data);
+    % not needed anymore: DC offset is taken out via FFT
+    
+    % apply sensitivity to convert V to real units
+    y = data.data ./ conv_factor;
     
     
-    % chop into 1 second long chunks - this is needed for integration
+    % process channels individually
     for chan=1:size(y,2)
 
-        % lowpass filter
-        if(true)
-            if(exist('lowpass_filter','var'))
-                 %y1 = lowpass_filter.filter(y(:,chan));
-                 y1 = y(:,chan);
-            else
-                %[y1, lowpass_filter] = lowpass(y(:,chan),settings.fcut,data.fsamp);
-                y1 = y(:,chan);
-            end
-        end
-        
-        %y1 = lowpass(y(:,chan),fcut,data.fsamp);
-        
-        % if reshape fails, we need to pad the matrix's end
+        % Reshape into chunks for processing.
+        % If reshape fails, we need to pad the matrix's end
         try
-            accel = reshape(y1,[],settings.nrchunks);
+            accel = reshape(y(:,chan),[],settings.nrchunks);
         catch reshape_err
             if (strcmp(reshape_err.identifier,'MATLAB:getReshapeDims:notDivisible'))
-                padsize = ceil(size(y1,1)/settings.nrchunks)*settings.nrchunks - size(y1,1); % find the number of zeros needed to pad on the end
-                y1 = padarray(y1,padsize,0,'post');
-                accel = reshape(y1,[],settings.nrchunks);
+                padsize = ceil(size(y(:,chan),1)/settings.nrchunks)*settings.nrchunks - size(y(:,chan),1); % find the number of zeros needed to pad on the end
+                accel = reshape(padarray(y(:,chan),padsize,0,'post'),[],settings.nrchunks);
             else
                 rethrow(reshape_err)
             end
         end
         
-        % transform accel into displacement    
         
+        % calculate FFT of velocity & displacement
         if(~settings.is_velo)
-            velo = velo2disp(y1,1/data.fsamp);
+            nr_integr = 2;
         else
-            velo = y1;
+            nr_integr = 1;
         end
         
-        disp = velo2disp(velo,1/data.fsamp);
+        [rms_velo, fft_velo, freq] = fast_rms(accel,data.fsamp,nr_integr-1);
+        [rms_disp, fft_disp, ~] = fast_rms(accel,data.fsamp,nr_integr);
         
-        % velocity octave spectrum in um/s
-        [p,cf] = poctave(velo./1e03,data.fsamp,settings.octave_opts{:});
+        % velocity octave spectra in um/s (for VC curves)
+        % TODO: use psd directly:
+        % p = poctave(pxx,fs,f,Name,Value,'psd') performs octave smoothing 
+        % by converting a power spectral density, pxx, to a 1/b 
+        % octave power spectrum, where b is the number of subbands in the octave band.
+        % The frequencies in f correspond to the PSD estimates in pxx.
 
+        % we should use psd^2??
+        warning('VC curve calculation accuracy needs verification');
+        [p,cf] = poctave((fft_velo.*1e-3).^2, data.fsamp, freq, settings.octave_opts{:},'psd');
         velo_octave_spec(chan,:,f) = p;
         
-        % calculate RMS
-        %rms_disp_chunk(chan,:) = rms(disp);
-        %p2p_disp_chunk(chan,:) = peak2peak(disp);   
-        
-        
-        % calculate RMS via integrated FFT
-        if(~settings.is_velo)
-            [integr, ff, spec_disp, rms_disp_ff] = fft_integrated_accel2disp(accel, data.fsamp, settings.highpass);
-        else
-            [integr, ff, spec_disp, rms_disp_ff] = fft_integrated_accel2disp(accel, data.fsamp, settings.highpass, 'velocity');
-        end
+        % calculate integrated displacement for this file
+        [integr, ff] = integrated_fft(fft_disp, freq);
+        warning('Integrated frequency filtering is not applied');
         
         integr_disp_chunk(chan,:) = mean(integr);
-        rms_disp_chunk(chan,:) = rms_disp_ff;
-        p2p_disp_chunk(chan,:) = 2*sqrt(2)*max(integr');
+        rms_disp_chunk(chan,:) = rms_disp;
         
         % calculate spectra
-        [pxx, freq] = pwelch(y1,[],1,settings.spectrogram_freqs,data.fsamp);
+        %[pxx, freq] = pwelch(y1,[],1,settings.spectrogram_freqs,data.fsamp);
         
-        psd_vib_block(chan,:) = pxx;
+        %psd_vib_block(chan,:) = pxx;
         
-        psd_vib_block_disp(chan, :) = mean(spec_disp);
+        %psd_vib_block_disp(chan, :) = mean(spec_disp);
         
         % debug plots
         if settings.CHECK_PLOTS

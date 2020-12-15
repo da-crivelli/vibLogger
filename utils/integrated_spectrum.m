@@ -16,6 +16,8 @@ function [integr, freq, spec] = integrated_spectrum(data, fsamp)
 %   v0.1 20191029 - initial release
 %   
 
+    warning('Function is deprecated, please replace with fast_rms / integrated_fft');
+
     L = size(data,1);
     Y = fft(data)/L;
     

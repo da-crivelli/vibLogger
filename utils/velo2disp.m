@@ -20,6 +20,8 @@ function disp_data = velo2disp(velo_data, delta_t, varargin)
 %   v0.1 20191029 - initial release
 %
 
+    warning('Function is deprecated, please replace with fast_rms / integrated_fft');
+
     % setting up the input parser
     p = inputParser;
     validString = @(x) ischar(x);

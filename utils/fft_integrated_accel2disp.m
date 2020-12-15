@@ -30,6 +30,8 @@ function [integr, freq, spec_disp, rms_disp] = fft_integrated_accel2disp(data, f
 %   v0.1 20200206 - initial release
 %
 
+    warning('Function is deprecated, please replace with fast_rms / integrated_fft');
+
     if(~exist('direction','var'))
         direction = 'forward';
     end

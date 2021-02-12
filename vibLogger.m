@@ -15,7 +15,7 @@
 %
 %     fsamp (int): sampling frequency per channel in Hz (all channels)
 %     recording_time (float): time to record in seconds per block
-%     update_time (float): time between updates (used to fire the plots and
+%     ? update_time (float): time between updates (used to fire the plots and
 %       the EPICS callback functions)
 %     timeout (float): max acquisition time in seconds
 %     datetime_timeout(string): date & time when recording stops (overrides timeout)
@@ -24,8 +24,8 @@
 %     live_preview (bool): enables live graphs
 %     save_data (bool): whether to save data or just run the live preview
 %
-%     // the following parameters are optional and can also be manually
-%     specified in the config.m file that gets generated at the end:
+%     ? callback_shortloop (string): calls the function specified in the
+%     string every update_time
 %
 %  Davide Crivelli
 %  davide.crivelli@diamond.ac.uk

@@ -89,6 +89,7 @@ if(settings.is_velo)
     warning('Data is set to be interpreted as velocity. Check this is intended.');
 end
 
+% f contains the file id
 if(exist('f','var'))
     if(isempty(f))
         error('variable f is empty... double check .mat file and retry');
@@ -119,7 +120,7 @@ for f=f_zero:nrfiles
             if(strcmp(err.identifier, 'MATLAB:load:couldNotReadFile') ||...
                 strcmp(err.identifier, 'MATLAB:load:couldNotReadFileSystemMessage') ||...
                 strcmp(err.identifier, 'MATLAB:load:cantReadFile'))
-                % pause for a bit1 second times the current iteration no.
+                % pause for 1 second times the current iteration no.
                 % display a message
                 pause_time = attempt * 1;
                 fprintf('Error accessing %s, pausing for %.0ds\n',filename,pause_time);
@@ -136,7 +137,7 @@ for f=f_zero:nrfiles
     end
     
     if(skip_file)
-        continue;   % this is horrible but it works... some errors will trigger a skip rather than a retry
+        continue;   % some errors will trigger a skip rather than a retry
     end
     
     if(~success)    
@@ -175,8 +176,9 @@ for f=f_zero:nrfiles
             nr_integr = 1;
         end
         
-        [rms_velo, fft_velo, freq] = fast_rms(accel,data.fsamp,nr_integr-1);
-        [rms_disp, fft_disp, ~] = fast_rms(accel,data.fsamp,nr_integr);
+        % velocity may be not needed?
+        [rms_velo_ch, fft_velo, freq] = fast_rms(accel,data.fsamp,nr_integr-1);
+        [rms_disp_ch, fft_disp, ~] = fast_rms(accel,data.fsamp,nr_integr);
         
         % velocity octave spectra in um/s (for VC curves)
         % TODO: use psd directly:
@@ -187,15 +189,16 @@ for f=f_zero:nrfiles
 
         % we should use psd^2??
         warning('VC curve calculation accuracy needs verification');
+        % fft_velo has N_slices columns. Save the mean:
         [p,cf] = poctave((fft_velo.*1e-3).^2, data.fsamp, freq, settings.octave_opts{:},'psd');
-        velo_octave_spec(chan,:,f) = p;
+        velo_octave_spec(chan,:,f) = mean(p,2);
         
         % calculate integrated displacement for this file
         [integr, ff] = integrated_fft(fft_disp, freq);
         warning('Integrated frequency filtering is not applied');
         
         integr_disp_chunk(chan,:) = mean(integr);
-        rms_disp_chunk(chan,:) = rms_disp;
+        rms_disp_chunk(chan,:) = rms_disp_ch;
         
         % calculate spectra
         %[pxx, freq] = pwelch(y1,[],1,settings.spectrogram_freqs,data.fsamp);
@@ -230,10 +233,10 @@ for f=f_zero:nrfiles
     
     integr_disp = cat(3,integr_disp,integr_disp_chunk);
     rms_disp = cat(2,rms_disp,rms_disp_chunk);
-    p2p_disp = cat(2,p2p_disp,p2p_disp_chunk);
-    psd_vib = cat(3,psd_vib,psd_vib_block);
+    %p2p_disp = cat(2,p2p_disp,p2p_disp_chunk);
+    %psd_vib = cat(3,psd_vib,psd_vib_block);
     
-    psd_vib_disp = cat(3,psd_vib_disp,psd_vib_block_disp);
+    %psd_vib_disp = cat(3,psd_vib_disp,psd_vib_block_disp);
     
     %rms_disp_v2 = cat(2,rms_disp_v2,rms_disp_chunk);
     %p2p_disp_v2 = cat(2,p2p_disp_v2,p2p_disp_chunk);

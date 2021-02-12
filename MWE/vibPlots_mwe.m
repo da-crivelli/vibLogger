@@ -2,7 +2,7 @@ clearvars
 close all
 close all hidden
 
-addpath('\\dc.diamond.ac.uk\dls\science\users\mca67379\MATLAB\vibLogger');
+%addpath('\\dc.diamond.ac.uk\dls\science\users\mca67379\MATLAB\vibLogger');
 
 % configuration
 settings = struct();

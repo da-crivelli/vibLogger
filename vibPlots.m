@@ -36,6 +36,7 @@
 %     psd: displacement and acceleration PSD plots
 %     integrated: integrated displacement
 %     vc_curves: VC curves / third octave plots
+%     vc_peak: peak velocity of VC curve over the file timebase
 %     band_rms: RMS by frequency band
 %     distributions_hourly: distribution by hour band of the day set (hour_slices)
 %     distributions_weekday: distributions by week day
@@ -231,7 +232,13 @@ if(any(strcmp(opts.plots,'vc_curves')) || plot_all)
         'Percentile',perc);
 end
 
-
+%% 'vc_peak': VC curve peak over time slice
+if(any(strcmp(opts.plots,'vc_peak')) || plot_all)
+    figures('VC_peak') = plot_vc_peak(cf, velo_octave_spec, acq_times_file, ...
+        'FigureName','VC_peak',...
+        'YLabel','1/3 octave peak RMS velocity (um/s)',...
+        'Legend',channel_names);
+end
 
 
 %% 'band_rms': "band pass" plots

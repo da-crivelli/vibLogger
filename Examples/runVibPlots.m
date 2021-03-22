@@ -25,7 +25,7 @@ settings.prob_chart_distribution = 'LogNormal';
 settings.prob_threshold = 0.99;
 
 %settings.plots = {'all'};
-settings.plots = {'integrated'};
+settings.plots = {'vc_peak'};
 
 settings.integrated_direction = 'increasing';
 

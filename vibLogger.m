@@ -34,6 +34,9 @@
 
 function s = vibLogger(settings)
 
+    addpath(strcat(fileparts(which(mfilename)),filesep,'utils'));
+    addpath(strcat(fileparts(which(mfilename)),filesep,'integrations'));
+
     if(~isfolder(settings.output_folder))
         mkdir(settings.output_folder);
     end

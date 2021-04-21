@@ -52,6 +52,8 @@
 
 function vibPlots(opts, cached_data)
 
+addpath(strcat(fileparts(which(mfilename)),filesep,'plots'));
+addpath(strcat(fileparts(which(mfilename)),filesep,'utils'));
 
 %% variable prep and config
 if(~exist('cached_data','var'))

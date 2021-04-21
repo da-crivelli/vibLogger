@@ -142,6 +142,7 @@ function save_data(time, this_data, settings)
         buffer_data = get_dataBuffer();
         settings = buffer_data.settings;
         data = buffer_data.data;
+        time = buffer_data.time;
         
         acq_date = settings.acq_date +seconds(time(1));
 
@@ -201,7 +202,7 @@ function is_full = append_dataBuffer(time, data, settings)
     global dataBuffer;
     % if dataBuffer is empty, create it
     if(isempty(dataBuffer))
-        dataBuffer.time = time;
+        
         dataBuffer.settings = settings;
         dataBuffer.max_size = settings.recording_time*settings.fsamp; % max size before dumping in .mat file
         
@@ -209,13 +210,16 @@ function is_full = append_dataBuffer(time, data, settings)
         
         dataBuffer.data = zeros(dataBuffer.max_size, ...
             settings.nrchans);
-        
+        dataBuffer.time = zeros(dataBuffer.max_size, ...
+            1);
         
         dataBuffer.lastPos = 0; % last time index
     end
     % if dataBuffer is not empty, append data
     dataBuffer.data( (dataBuffer.lastPos+1): (dataBuffer.lastPos+size(data,1)),:) = ...
         data;
+    dataBuffer.time( (dataBuffer.lastPos+1): (dataBuffer.lastPos+size(time,1)),:) = ...
+        time;
     dataBuffer.lastPos = dataBuffer.lastPos+size(data,1);
     
     % check dataBuffer.size vs dataBuffer.max_size

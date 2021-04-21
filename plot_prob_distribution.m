@@ -1,3 +1,4 @@
+
 function fig = plot_prob_distribution(y, varargin)
 %PLOT_PROB_DISTRIBUTION plots probability distribution histograms and
 %probability charts
@@ -70,14 +71,14 @@ for c=1:nr_chans
     % find the cumulate probability percent
     fprintf('\n%s\t', opts.Legend{c});
     for p=1:length(opts.ProbThreshold)
-        cv = find(cumsum(h(c).Values.*h(c).BinWidth)>opts.ProbThreshold(p),1);
-
-        if(~isempty(cv))
-            prob(c,p) = h(c).BinEdges(cv);
-        else
-            prob(c,p) = NaN;
-        end
-
+%         cv = find(cumsum(h(c).Values.*h(c).BinWidth)>opts.ProbThreshold(p),1);
+% 
+%         if(~isempty(cv))
+%             prob(c,p) = h(c).BinEdges(cv);
+%         else
+%             prob(c,p) = NaN;
+%         end
+        prob(c,p) = quantile(y(c,~c_nan),opts.ProbThreshold(p));
         fprintf('%2.2f\t',prob(c,p));
     end
     xl(c,:) = xlim();
@@ -110,7 +111,8 @@ if(~(strcmp(opts.ProbChart,'none')))
         legend({opts.ProbChart,opts.Legend{c}},'Location','SouthEast',...
             'EdgeColor','white','Color','white');
         
-        p.Children(1).Color = p.ColorOrder(c,:);
+        if(c>7); cc=mod(c,7); else; cc=c; end
+        p.Children(1).Color = p.ColorOrder(cc,:);
     end
 end
 

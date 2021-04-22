@@ -16,15 +16,15 @@ function [accel_signal, time, disp_ideal] = generate_random_signal(rms_vals, fre
 %  see also: VIBANALYZER, VIBPLOTS, SENSORS_DB
 
 accel_signal = zeros(1,len);
-disp_ideal = zeros(1,len);
+disp_ideal = zeros(1,len+2);
 
-time = [0:(len-1)] ./ fsamp;
+time = [0:(len+1)] ./ fsamp;
 
 for i=1:length(rms_vals)
     disp_ideal = disp_ideal + rms_vals(i)*sqrt(2).*sin(2*pi*freq_vals(i).*time);
 end
 
-disp_ideal = disp_ideal + (2*rand(1,len)-1).*noise_rms*sqrt(2);
+disp_ideal = disp_ideal + (2*rand(1,len+2)-1).*noise_rms*sqrt(2);
 
 accel_signal = diff(diff(disp_ideal))./((1/fsamp).^2);
 
@@ -52,5 +52,7 @@ ylabel('FFT of accel');
 subplot(2,1,2);
 loglog(freq,disp_spec);
 ylabel('FFT of displacement');
+
+time = time(1:end-2);
 
 end

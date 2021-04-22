@@ -26,8 +26,8 @@ settings.timeout = recording_time*nr_files;
    
 
 % actual generation 
-rms_vals = {[1], [3], [3, 2]};
-freq_vals = {[5], [11], [11, 50]};
+rms_vals = {[1, 1], [3], [3, 2]};
+freq_vals = {[0, 5], [11], [11, 50]};
 noise_rms = 0;
 
 figure();

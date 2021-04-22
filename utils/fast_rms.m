@@ -19,7 +19,7 @@ if(~exist('nr_integr','var')); nr_integr = 0; end;
 % calculate the FFT so that I^2_RMS=I^2_0+∑1/2 I^2_i
 
 nsamp = size(data,1);
-all_fft = abs(fft(data,[],2))./nsamp;
+all_fft = abs(fft(data,[],1))./nsamp;
 all_fft = all_fft(1:floor(nsamp/2)+1,:);
 
 % remove DC offset

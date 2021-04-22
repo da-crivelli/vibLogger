@@ -1,4 +1,4 @@
-function [integr, freq] = integrated_fft(signal_fft, freq, varargin)
+function [integr, freq, f_range] = integrated_fft(signal_fft, freq, varargin)
 %INTEGRATED_FFT returns the integrated spectrum of the input fft
 %   WARNING: only works with evenly spaced frequency bins
 %
@@ -18,7 +18,8 @@ function [integr, freq] = integrated_fft(signal_fft, freq, varargin)
 %     - 'power': returns integrated power (units^2). 
 %       max(integrated) = variance of the input signal. The relative
 %       amplitudes are preserved.
-%
+%   [integrated, frequency, f_range] = ... returns the frequency indexes in
+%       the fft
 %
 %   Davide Crivelli
 %   davide.crivelli@diamond.ac.uk
@@ -42,9 +43,9 @@ function [integr, freq] = integrated_fft(signal_fft, freq, varargin)
     
     switch(opts.mode)
         case 'amplitude'
-            integr = sqrt(0.5*cumsum(signal_fft(f_range).^2));
+            integr = sqrt(0.5*cumsum(signal_fft(f_range,:).^2));
         case 'power'
-            integr = 0.5*cumsum(signal_fft(f_range).^2);
+            integr = 0.5*cumsum(signal_fft(f_range,:).^2);
         otherwise
             error('Mode not recognised. Must be one of ''amplitude'',''power''');
     end

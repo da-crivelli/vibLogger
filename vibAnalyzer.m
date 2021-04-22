@@ -195,21 +195,28 @@ for f=f_zero:nrfiles
         
         % calculate RMS via integrated FFT
         if(~settings.is_velo)
-            [integr, ff, spec_disp, rms_disp_ff] = fft_integrated_accel2disp(accel, data.fsamp, settings.highpass);
+            %[integr, ff, spec_disp, rms_disp_ff] = fft_integrated_accel2disp(accel, data.fsamp, settings.highpass);
+            nr_integr = 2;
         else
-            [integr, ff, spec_disp, rms_disp_ff] = fft_integrated_accel2disp(accel, data.fsamp, settings.highpass, 'velocity');
+            %[integr, ff, spec_disp, rms_disp_ff] = fft_integrated_accel2disp(accel, data.fsamp, settings.highpass, 'velocity');
+            nr_integr = 1;
         end
+        [integr1, spec_disp, freq] = fast_rms(accel, data.fsamp, nr_integr);
+        [integr, ff, f_range] = integrated_fft(spec_disp, freq, ...
+             'flimit',[settings.highpass, settings.fcut]);
+        %integr = max(integr);
+        integr1;
         
-        integr_disp_chunk(chan,:) = mean(integr);
-        rms_disp_chunk(chan,:) = rms_disp_ff;
-        p2p_disp_chunk(chan,:) = 2*sqrt(2)*max(integr');
+        integr_disp_chunk(chan,:) = mean(integr,2);
+        rms_disp_chunk(chan,:) = integr1;%max(integr);
+        p2p_disp_chunk(chan,:) = 2*sqrt(2)*max(integr',[],2);
         
         % calculate spectra
         [pxx, freq] = pwelch(y1,[],1,settings.spectrogram_freqs,data.fsamp);
         
         psd_vib_block(chan,:) = pxx;
         
-        psd_vib_block_disp(chan, :) = mean(spec_disp);
+        psd_vib_block_disp(chan, :) = mean(spec_disp(f_range,:),2);
         
         % debug plots
         if settings.CHECK_PLOTS

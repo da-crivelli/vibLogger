@@ -89,8 +89,7 @@ if(exist('f','var'))
     if(isempty(f))
         %error('variable f is empty... double check .mat file and retry');
         warning('variable f is empty... attempting to recover');
-        f = size(psd_vib,3)+1;
-        f_zero = f+1;
+        f = size(psd_vib,3);
     end
     f_zero = f+1;
 else

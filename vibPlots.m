@@ -341,10 +341,18 @@ if(any(strcmp(opts.plots,'transmissibility')) || plot_all)
 end
 
 %% figure setup and printing
+fg_names = figures.keys;
+
+% add figure label with the filename
+for fg=1:length(figures)
+    fgr = figure(figures(fg_names{fg}));
+    annotation('textbox', [0,0,0,0], 'string', settings.output_file, ...
+        'FitBoxToText', 'on', 'verticalalignment', 'bottom',...
+        'Interpreter', 'none', 'LineStyle', 'none');
+end
+
 if(isfield(opts,'SAVE_PLOTS'))
     if(opts.SAVE_PLOTS)
-        fg_names = figures.keys;
-
         if(~exist(opts.fg_output_folder,'dir'))
             mkdir(opts.fg_output_folder);
         end

@@ -208,7 +208,7 @@ for f=f_zero:nrfiles
         integr1;
         
         integr_disp_chunk(chan,:) = mean(integr,2);
-        rms_disp_chunk(chan,:) = integr1;%max(integr);
+        rms_disp_chunk(chan,:) = max(integr);
         p2p_disp_chunk(chan,:) = 2*sqrt(2)*max(integr',[],2);
         
         % calculate spectra

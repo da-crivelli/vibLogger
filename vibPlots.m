@@ -251,7 +251,8 @@ if(any(strcmp(opts.plots,'band_rms')) || plot_all)
             bin_idxs = ff>=opts.freq_band_slice(fbin) & ff<(opts.freq_band_slice(fbin+1));
             integrable_fft = diff(integr_disp,1,2);
             freq_slice(chan,fbin,:) = sum(integrable_fft(chan,bin_idxs,:));
-            freq_slice_legend{fbin} = sprintf('%dHz - %dHz',opts.freq_band_slice(fbin), opts.freq_band_slice(fbin+1));
+            freq_slice_legend{fbin} = sprintf('%dHz - %dHz',opts.freq_band_slice(fbin),...
+                opts.freq_band_slice(fbin+1));
         end
 
         fig_name = sprintf('band_RMS_ch%d',chan);
@@ -262,6 +263,20 @@ if(any(strcmp(opts.plots,'band_rms')) || plot_all)
             'YScale','log',...
             'Legend',freq_slice_legend);
     end
+    
+    fprintf('\n== RMS by band (average, nm) ==\n');
+    fprintf('Freq band');
+    fprintf('\t%s',channel_names{:});
+    fprintf('\n');
+    avgs = mean(freq_slice,3);
+    for fbin = 1:(length(opts.freq_band_slice)-1)
+        fprintf('%s',freq_slice_legend{fbin});
+        for chan = 1:nrchans
+            fprintf('\t%.2f',avgs(chan,fbin));
+        end
+        fprintf('\n');
+    end
+    fprintf('\n');
 end
 
 %% 'distributions_hourly': by hour of day

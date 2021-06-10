@@ -249,7 +249,8 @@ if(any(strcmp(opts.plots,'band_rms')) || plot_all)
     for chan = 1:nrchans
         for fbin = 1:(length(opts.freq_band_slice)-1)
             bin_idxs = ff>=opts.freq_band_slice(fbin) & ff<(opts.freq_band_slice(fbin+1));
-            freq_slice(chan,fbin,:) = sum(psd_vib_disp(chan,bin_idxs,:),2);
+            integrable_fft = diff(integr_disp,1,2);
+            freq_slice(chan,fbin,:) = sum(integrable_fft(chan,bin_idxs,:));
             freq_slice_legend{fbin} = sprintf('%dHz - %dHz',opts.freq_band_slice(fbin), opts.freq_band_slice(fbin+1));
         end
 

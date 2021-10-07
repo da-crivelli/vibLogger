@@ -45,6 +45,12 @@ velo_octave_spec_perc = prctile(velo_octave_spec,opts.Percentile*100,3);
 
 yl = [Inf 0];
 
+if(length(opts.Percentile) ~= 2)
+    opts.Mode = 'Lines';
+    warning('Area VC plots only supports 2 percentiles. Defaulting to "lines"');
+end
+
+
 fig = figure('name',opts.FigureName);
 for ch=1:nr_chans
     subplot(1,nr_chans,ch);

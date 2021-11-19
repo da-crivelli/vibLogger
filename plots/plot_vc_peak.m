@@ -38,7 +38,10 @@ velo_octave_max = squeeze(velo_octave_max)';
 
 fig = figure('name',opts.FigureName);
 
-semilogy(acq_times_file,velo_octave_max);
+% fix if time is shorter than velo_octave max
+trim = min(size(velo_octave_max,1),length(acq_times_file));
+
+semilogy(acq_times_file(1:trim),velo_octave_max(1:trim,:));
 legend(opts.Legend);
 
 ylabel(opts.YLabel);

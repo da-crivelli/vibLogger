@@ -359,6 +359,36 @@ end
 %% figure setup and printing
 fg_names = figures.keys;
 
+
+% annotations
+opts.annotations_file = 'C:\Users\mca67379\OneDrive - Diamond Light Source Ltd\Vibration\20210727_DEB_Digging\annotations.csv';
+warning("Annotations being tested")
+
+annotation_plots_enabled = {'p2p_t', 'rms_t', 'PSD_','VC_peak'};
+annotation_plots_subfig = [3 3 4 2];
+
+if(isfield(opts,'annotations_file'))
+    annotations = readtable(opts.annotations_file);
+    annotations.Properties.VariableNames = {'Time','Annotation'};
+    for fg=1:length(figures)
+        if(startsWith(fg_names{fg}, annotation_plots_enabled))
+            fgr = figure(figures(fg_names{fg}));
+            for fn = 1:length(annotation_plots_enabled)
+                if(startsWith(fg_names{fg},annotation_plots_enabled(fn)))
+                    break
+                end
+            end
+            for l=1:height(annotations)
+                ann = annotations(l,:);
+                txt = strcat('\leftarrow ',ann.Annotation);
+                
+                text(fgr.Children(annotation_plots_subfig(fn)),ann.Time,1,txt,'Rotation',90);
+            end
+        end
+    end
+end
+
+
 % add figure label with the filename
 for fg=1:length(figures)
     fgr = figure(figures(fg_names{fg}));

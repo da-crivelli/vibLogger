@@ -29,39 +29,49 @@ addParameter(p,'FigureName','Figure',@ischar);
 addParameter(p,'YLabel','Y',@ischar);
 addParameter(p,'Legend',{''});
 addParameter(p,'Mode','Lines', @ischar);
-addParameter(p,'Percentile',0.99, @(x)( (x>0) & (x<=100) ));
+addParameter(p,'Percentile',[0.5 0.99], @(x)( all(x>0) & all(x<=1) ));
 
 parse(p,varargin{:});
 opts = p.Results;
 nr_chans = size(velo_octave_spec,1);
 
-velo_octave_spec_mean = mean(velo_octave_spec,3);
-velo_octave_spec_std = std(velo_octave_spec,0,3);
+%velo_octave_spec_mean = mean(velo_octave_spec,3);
+%velo_octave_spec_std = std(velo_octave_spec,0,3);
 velo_octave_spec_perc = prctile(velo_octave_spec,opts.Percentile*100,3);
 
-vm = velo_octave_spec_mean;
-vu = velo_octave_spec_mean + velo_octave_spec_std;
-vperc = velo_octave_spec_perc;
+%vm = velo_octave_spec_mean;
+%vu = velo_octave_spec_mean + velo_octave_spec_std;
+%vperc = velo_octave_spec_perc;
 
 yl = [Inf 0];
+
+if(length(opts.Percentile) ~= 2)
+    opts.Mode = 'Lines';
+    warning('Area VC plots only supports 2 percentiles. Defaulting to "lines"');
+end
+
 
 fig = figure('name',opts.FigureName);
 for ch=1:nr_chans
     subplot(1,nr_chans,ch);
 
     if(strcmp(opts.Mode, 'Lines'))
-        loglog(cf,vm(ch,:),'LineWidth',2);
-        hold on;
-        loglog(cf,vu(ch,:));
-        loglog(cf,vperc(ch,:));
-        legend({'Mean','+\sigma',sprintf('%2.0f%%',opts.Percentile*100)},'location','SouthWest','EdgeColor','white','Color','white');
+        for pc=1:size(velo_octave_spec_perc,3)
+            loglog(cf,velo_octave_spec_perc(ch,:,pc),...
+                'DisplayName',sprintf('%2.0f%%',opts.Percentile(pc)*100));
+            hold on;
+        end
+        
+        legend('location','SouthWest','EdgeColor','white','Color','white');
 
     elseif(strcmp(opts.Mode,'Area'))
-        fill([cf; flipud(cf)], [vperc(ch,:),fliplr(vm(ch,:))]',[0, 0.4470, 0.7410]);
+        fill([cf; flipud(cf)], [velo_octave_spec_perc(ch,:,1),fliplr(velo_octave_spec_perc(ch,:,2))]',...
+            [0, 0.4470, 0.7410]);
         ax=gca();
         set(ax, 'XScale', 'log');
         set(ax, 'YScale', 'log');
-        legend({sprintf('Mean - %2.0f%%',opts.Percentile*100)},'location','SouthWest','EdgeColor','white','Color','white');
+        legend({sprintf('%2.0f%% - %2.0f%%',opts.Percentile(1)*100,opts.Percentile(2)*100)},...
+            'location','SouthWest','EdgeColor','white','Color','white');
     end
 
     xlabel('Frequency (Hz)');

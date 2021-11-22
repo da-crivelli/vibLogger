@@ -37,6 +37,7 @@
 %     integrated: integrated displacement
 %     vc_curves: VC curves / third octave plots
 %     vc_peak: peak velocity of VC curve over the file timebase
+%     vc_stats: cumulative time spent at or below VC levels
 %     band_rms: RMS by frequency band
 %     distributions_hourly: distribution by hour band of the day set (hour_slices)
 %     distributions_weekday: distributions by week day
@@ -239,6 +240,13 @@ if(any(strcmp(opts.plots,'vc_peak')) || plot_all)
     figures('VC_peak') = plot_vc_peak(cf, velo_octave_spec, acq_times_file, ...
         'FigureName','VC_peak',...
         'YLabel','1/3 octave peak RMS velocity (um/s)',...
+        'Legend',channel_names);
+end
+
+%% 'vc_stats': VC curve cumulative stats over time slice
+if(any(strcmp(opts.plots,'vc_stats')) || plot_all)
+    figures('VC_stats') = plot_vc_stats(cf, velo_octave_spec, acq_times_file, ...
+        'FigureName','VC_stats',...
         'Legend',channel_names);
 end
 

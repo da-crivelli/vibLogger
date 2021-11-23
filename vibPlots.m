@@ -72,22 +72,64 @@ nrchans = size(rms_disp,1);
 % option is to just chop the data before & after...
 % (only supports a single range as of now)
 if(isfield(opts,'datetime_range'))
+    
     start_time = find(acq_times >= opts.datetime_range{1},1);
     start_time_file = find(acq_times_file >= opts.datetime_range{1},1);
     end_time = find(acq_times < opts.datetime_range{2},1,'last');
     end_time_file = find(acq_times_file < opts.datetime_range{2},1,'last');
 
-    acq_times = acq_times(start_time:end_time);
-    acq_times_file = acq_times_file(start_time_file:end_time_file);
+    
+    % we're not too bothered if certain variables are not loaded, 
+    % as the GUI does not cache unnecessary variables
+    try
+        acq_times = acq_times(start_time:end_time);
+        acq_times_file = acq_times_file(start_time_file:end_time_file);
+    catch e
+        if(~strcmp(e.identifier,'MATLAB:UndefinedFunction'))
+            rethrow(e);
+        end
+    end
 
-    p2p_disp = p2p_disp(:,start_time:end_time);
-    rms_disp = rms_disp(:,start_time:end_time);
-
-    psd_vib = psd_vib(:,:,start_time_file:end_time_file);
-    psd_vib_disp = psd_vib_disp(:,:,start_time_file:end_time_file);
-    integr_disp = integr_disp(:,:,start_time_file:end_time_file);
-
-    velo_octave_spec = velo_octave_spec(:,:,start_time_file:end_time_file);
+    try
+        p2p_disp = p2p_disp(:,start_time:end_time);
+    catch e
+        if(~strcmp(e.identifier,'MATLAB:UndefinedFunction'))
+            rethrow(e);
+        end
+    end
+    
+    try
+        rms_disp = rms_disp(:,start_time:end_time);
+    catch e
+        if(~strcmp(e.identifier,'MATLAB:UndefinedFunction'))
+            rethrow(e);
+        end
+    end
+    
+    try
+        psd_vib = psd_vib(:,:,start_time_file:end_time_file);
+        psd_vib_disp = psd_vib_disp(:,:,start_time_file:end_time_file);
+    catch e
+        if(~strcmp(e.identifier,'MATLAB:UndefinedFunction'))
+            rethrow(e);
+        end
+    end
+    
+    try
+        integr_disp = integr_disp(:,:,start_time_file:end_time_file);
+    catch e
+        if(~strcmp(e.identifier,'MATLAB:UndefinedFunction'))
+            rethrow(e);
+        end
+    end
+    
+    try
+        velo_octave_spec = velo_octave_spec(:,:,start_time_file:end_time_file);
+    catch e
+        if(~strcmp(e.identifier,'MATLAB:UndefinedFunction'))
+            rethrow(e);
+        end
+    end
 end
 
 % are these needed at all?

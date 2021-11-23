@@ -1,2 +1,2 @@
-viblogger_version = "2.5b";
-viblogger_version_name = "Never taken a shortcut before?";
+viblogger_version = "2.6";
+viblogger_version_name = "how the turn tables...";

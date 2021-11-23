@@ -35,10 +35,11 @@ nr_chans = size(velo_octave_spec,1);
 velo_octave_max = max(velo_octave_spec,[],2);
 velo_octave_max = squeeze(velo_octave_max)';
 
-fig = figure('name',opts.FigureName);
 
+fig = figure('name',opts.FigureName);
 % compute & plot the empyrical cumulate CDF
 vc_level_times = duration();
+
 for c=1:nr_chans
     [f,x] = ecdf(velo_octave_max(:,c));
     f = f.*(acq_times_file(end)-acq_times_file(1));
@@ -47,31 +48,19 @@ for c=1:nr_chans
     
     % find ecdf at VC levels
     for l=1:length(vc_curves)
-        vc_level_times(l,c) = f(find( x>= vc_curves(l), 1));
+        vc_times_idx = find( x>= vc_curves(l), 1);
+        if(isempty(vc_times_idx))
+            vc_times = f(end);
+        elseif vc_times_idx > 1
+            vc_times = f(vc_times_idx-1);
+        else
+            vc_times = f(vc_times_idx);
+        end
+        vc_level_times(l,c) = vc_times;
     end
+    
 end
 
-%VC_LEVEL_TIMES PRINTING CODE
-
-fprintf('\t\t');
-for c=1:nr_chans
-    fprintf('%s\t', opts.Legend{c});
-end
-fprintf('\n');
-
-fprintf('>VC-E\t');
-for c=1:nr_chans
-    fprintf('%s\t', (acq_times_file(end)-acq_times_file(1) - vc_level_times(1,c)));
-end
-fprintf('\n');
-
-for l=1:length(vc_curves)
-    fprintf('%s:\t',vc_labels{l});
-    for c=1:nr_chans
-        fprintf('%s\t', vc_level_times(l,c));
-    end
-    fprintf('\n');
-end
 
 %%
 
@@ -96,6 +85,23 @@ ylim([0 acq_times_file(end)-acq_times_file(1)]);
 grid on;
 
 
+% store residual
+for c=1:nr_chans
+    vc_exceedance(c) = acq_times_file(end)-acq_times_file(1) - vc_level_times(1,c);
+end
+
+
+%% VC_LEVEL_TIMES PRINTING CODE.
+
+vc_exc_table = array2table(vc_exceedance, ...
+    'VariableNames', opts.Legend, ...
+    'RowNames', "> " + vc_labels(1) );
+
+vc_level_table = array2table(vc_level_times, ...
+    'VariableNames', opts.Legend, ...
+    'RowNames', "<=" + vc_labels);
+
+[vc_exc_table;  vc_level_table]
 
 
 end

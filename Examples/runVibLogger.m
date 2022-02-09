@@ -37,5 +37,7 @@ settings.live_preview = true;
 settings.save_data = false;      % currently there is no way to 
                                 % independently set the save and preview times
 
+settings.callback_shortloop = 'transmissibility'
+                                
 %% runs vibLogger                                
 vibLogger(settings);

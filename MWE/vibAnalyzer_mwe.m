@@ -8,8 +8,8 @@ addpath('C:\Users\mca67379\Documents\MATLAB\viblogger');
 settings = struct();
 
 %% files and file processing
-settings.data_folder = 'C:\Users\mca67379\Documents\example_data'; %where data was saved by vibAnalyzer
-settings.output_file = 'C:\Users\mca67379\Documents\example_output\example.mat'; % where to save the processed data file
+settings.data_folder = 'C:\Users\mca67379\Documents\MATLAB\viblogger\MWE\example_data'; %where data was saved by vibAnalyzer
+settings.output_file = 'C:\Users\mca67379\Documents\MATLAB\viblogger\MWE\example_output\example.mat'; % where to save the processed data file
 
 %settings.nrfiles = 10;  % number of files to analyse. Comment out to process all files.
 

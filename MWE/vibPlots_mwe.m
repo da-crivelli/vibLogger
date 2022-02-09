@@ -2,7 +2,7 @@ clearvars
 close all
 close all hidden
 
-addpath('\\dc.diamond.ac.uk\dls\science\users\mca67379\MATLAB\vibLogger');
+addpath('C:\Users\mca67379\Documents\MATLAB\viblogger');
 
 % configuration
 settings = struct();
@@ -19,8 +19,8 @@ settings.SAVE_PDF = false;
 settings.prob_chart_distribution = 'LogNormal';
 settings.prob_threshold = 0.99;
 
-%settings.plots = {'transmissibility'};
-settings.plots = {'time','psd','integrated'};
+settings.plots = {'transmissibility'};
+%settings.plots = {'time','psd','integrated'};
 
 settings.integrated_direction = 'increasing';
 

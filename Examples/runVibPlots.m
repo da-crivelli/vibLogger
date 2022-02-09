@@ -39,6 +39,8 @@ settings.freq_band_slice(1) = 1;
 %settings.hour_slices = [0 3 4 7 16 20 24];
 settings.hour_slices = [0 3 8 16 24];
 
+% annotations file (to display annotations on time-based plots)
+%opts.annotations_file = 'annotations.csv';
 
 %% run the plotter
 vibPlots(settings);

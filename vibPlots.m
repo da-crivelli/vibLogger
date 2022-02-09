@@ -28,6 +28,11 @@
 %     // display
 %     vc_mode: 'Area' or 'Lines' ('Area' shades the area between the mean-max lines);
 %
+%     // annotations
+%     annotation_file (string): CSV file in the format (datetime,
+%     annotation) to display textarrows alongside time-based plots. Useful
+%     for showing specific events.
+%
 %   Available plots:
 %     all: all available plots
 %     time: RMS and P2P of displacement vs time, with distributions
@@ -411,7 +416,7 @@ fg_names = figures.keys;
 
 
 % annotations
-opts.annotations_file = strcat(fileparts(settings.output_file),filesep, 'annotations.csv');
+
 
 annotation_plots_enabled = {'p2p_t', 'rms_t', 'PSD_','VC_peak'};
 annotation_plots_subfig = [3 3 4 2];

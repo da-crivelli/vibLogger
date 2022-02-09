@@ -34,6 +34,8 @@ settings.freq_band_slice(1) = 1;
 %settings.hour_slices = [0 3 4 7 16 20 24];
 settings.hour_slices = [0 3 8 16 24];
 
+settings.annotations_file = 'example_output\annotations1.csv';
+
 
 %% run the plotter
 d = load('example_output\example.mat');

@@ -4,13 +4,13 @@ Vibration data logger and analysis tools.
 All the examples below are also available under the Examples folder as .m files.
 
 ## Logging data
-To log data you need to call `vibLogger()` with a few configuration parameters. 
+To log data you need to call `vibLogger()` with a few configuration parameters.
 You can copy the following example in a .m script and run it.
 
 **Caution:**
 The code under `\\dc.diamond.ac.uk\` is in a working directory, therefore it may
-and will break regularly, even during a measurement. Clone the master repository from Gitlab 
-`https://gitlab.diamond.ac.uk/mca67379/viblogger` for a stable non-live 
+and will break regularly, even during a measurement. Clone the master repository from Gitlab
+`https://gitlab.diamond.ac.uk/mca67379/viblogger` for a stable non-live
 copy, replace the path below with your local folder.
 
 ```matlab
@@ -38,9 +38,9 @@ settings.channel_type = 'Voltage';  % 'Voltage' for standard voltage
                                  % 'IEPE' for IEPE / ICP sensors.
                                  % also accepts a cell of strings for
                                  % different settings per channel.
-                                 
+
 %settings.iepe_excitation_current = .004;                         
-                        
+
 settings.fsamp = 2048;   % sampling frequency in Hz
 settings.recording_time = 1; % time to record in seconds per block
 settings.timeout = 200;   % max acquisition time in seconds
@@ -48,7 +48,7 @@ settings.timeout = 200;   % max acquisition time in seconds
 settings.output_folder = '.'; %where to save the results
 
 settings.live_preview = true;   
-settings.save_data = false;      % currently there is no way to 
+settings.save_data = false;      % currently there is no way to
                                 % independently set the save and preview times
 
 %% runs vibLogger                                
@@ -77,7 +77,7 @@ settings.output_file = '20200317_freq_1.mat'; % where to save the processed data
 %settings.nrfiles = 10;  % number of files to analyse. Comment out to process all files.
 
 settings.RESET_PROCESSED = true; % reset the output_file data
-settings.CHECK_PLOTS = true; % plots some debugging plots. warning: "TRUE" 
+settings.CHECK_PLOTS = true; % plots some debugging plots. warning: "TRUE"
                     % may just crash Matlab if there's a lot of files
 
 %% frequency and data integration related stuff
@@ -88,7 +88,7 @@ settings.highpass = 2;  % highpass frequency for RMS / integration
 settings.fcut = 600; % Hz, lowpass cutoff frequency
 settings.spectrogram_freqs = 1:0.1:500; % spectral lines for spectrograms
 
-settings.is_velo = false;    % set to TRUE if the measurements are already in velocity. 
+settings.is_velo = false;    % set to TRUE if the measurements are already in velocity.
 
 %% third octave band analysis config
 octave_band = [3.15 500];   % start and end of bands
@@ -103,8 +103,8 @@ vibAnalyzer(settings);
 
 ## Plotting data
 
-To produce plots, you need to call the `vibPlotter()` function - see below example for available settings. 
-The plotter will save, if `SAVE_PLOTS` is set to `true`, a collection of .pdf and .png plots in addition to 
+To produce plots, you need to call the `vibPlotter()` function - see below example for available settings.
+The plotter will save, if `SAVE_PLOTS` is set to `true`, a collection of .pdf and .png plots in addition to
 plotting them.
 
 
@@ -119,7 +119,7 @@ addpath('\\dc.diamond.ac.uk\dls\science\users\mca67379\MATLAB\vibLogger');
 settings = struct();
 
 %where the processed data was saved by vibAnalyzer
-settings.processed_file = '20200317_freq_2.mat'; 
+settings.processed_file = '20200317_freq_2.mat';
 
 % start and end times for plots. Format: '31-May-2020 03:49:48'
 % if you omit the time, it assumes the very start of the day.
@@ -156,3 +156,23 @@ vibPlots(settings);
 
 
 ```
+
+
+## Annotations support in plots
+If you place a `annotations.csv` file in the same folder as `processed_file`, the annotations that you
+specify will be added to the following time based plots:
+ - p2p_t
+ - rms_t
+ - PSD_*
+ - VC_peak
+
+ The CSV file format is as follows
+
+ ```
+ 27-Jul-2021 08:05, DC in I08 hutch
+ 27-Jul-2021 08:20, digger arrives on site
+ 27-Jul-2021 09:30, Move from zone 8 to zone 10
+ 27-Jul-2021 09:52, Begin digging
+ 27-Jul-2021 09:58, Truck move from zone 8 to zone
+
+ ```

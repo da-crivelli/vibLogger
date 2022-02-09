@@ -28,6 +28,11 @@
 %     // display
 %     vc_mode: 'Area' or 'Lines' ('Area' shades the area between the mean-max lines);
 %
+%     // annotations
+%     annotation_file (string): CSV file in the format (datetime,
+%     annotation) to display textarrows alongside time-based plots. Useful
+%     for showing specific events.
+%
 %   Available plots:
 %     all: all available plots
 %     time: RMS and P2P of displacement vs time, with distributions
@@ -408,6 +413,36 @@ end
 
 %% figure setup and printing
 fg_names = figures.keys;
+
+
+% annotations
+
+
+annotation_plots_enabled = {'p2p_t', 'rms_t', 'PSD_','VC_peak'};
+annotation_plots_subfig = [3 3 4 2];
+
+if(isfield(opts,'annotations_file'))
+    annotations = readtable(opts.annotations_file);
+    annotations.Properties.VariableNames = {'Time','Annotation'};
+    for fg=1:length(figures)
+        if(startsWith(fg_names{fg}, annotation_plots_enabled))
+            fgr = figure(figures(fg_names{fg}));
+            for fn = 1:length(annotation_plots_enabled)
+                if(startsWith(fg_names{fg},annotation_plots_enabled(fn)))
+                    break
+                end
+            end
+            for l=1:height(annotations)
+                ann = annotations(l,:);
+                txt = strcat('\leftarrow ',ann.Annotation);
+                
+                ax = fgr.Children(annotation_plots_subfig(fn));
+                text(ax,ann.Time,ax.YLim(1)+(ax.YLim(2)-ax.YLim(1))*0.1,txt,'Rotation',90);
+            end
+        end
+    end
+end
+
 
 % add figure label with the filename
 for fg=1:length(figures)

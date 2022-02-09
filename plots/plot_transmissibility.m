@@ -25,12 +25,14 @@ addParameter(p,'FigureName','Figure',@ischar);
 addParameter(p,'FigureTitle','',@ischar);
 addParameter(p,'CoherenceFilter',1,@isnumeric);
 addParameter(p,'FreqRange',[-Inf Inf],@(x) validateattributes(x,{'numeric'},{'size',[1,2]}));
+addParameter(p,'FigureVar',false);
 
 parse(p,varargin{:});
 opts = p.Results;
 
 sz = size(transmiss);
 
+%% TODO: needs to change to support a single file (split "reshape" before processing)
 trz = mean(abs(reshape(transmiss,[sz(2:end) 1])),1);
 cohz = mean(reshape(coher,[sz(2:end) 1]),1);
 ang = mean(reshape(rad2deg(unwrap(angle(transmiss))),[sz(2:end) 1]),1); 
@@ -46,7 +48,11 @@ trz_hi(~high_coh) = NaN;
 ang_hi = ang;
 ang_hi(~high_coh) = NaN;
 
-fig = figure('name',opts.FigureName);
+if(opts.FigureVar)
+    fig = figure(opts.FigureVar, 'name',opts.FigureName);
+else
+    fig = figure('name',opts.FigureName);
+end
 
 ax1 = subplot(3,1,1);
 loglog(freq,trz,'Color',[0.65 0.65 0.65]);

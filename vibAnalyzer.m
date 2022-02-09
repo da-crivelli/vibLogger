@@ -96,6 +96,7 @@ end
 
 nrchans = length(conv_factor);
 
+
 wb = waitbar(0,sprintf('Processing file %.0d of %.0d',0,nrfiles));
 for f=f_zero:nrfiles
     waitbar(f/nrfiles,wb,sprintf('Processing file %.0d of %.0d',f,nrfiles));
@@ -263,27 +264,18 @@ for f=f_zero:nrfiles
     
     % can be overridden in runVibAnalyzer.m
     if(isfield(settings,'inputs'))
-        inputs = settings.inputs;
-        outputs = settings.outputs;
+        [tx,transmiss_freq,coh] = transmissibility(settings,data);
+        transmiss(f,:,:) = tx;
+        coher(f,:,:) = coh;
     end
     
-    if(isfield(settings,'winoverlap'))
-        transm_overlap = settings.winoverlap;
-    else
-        transm_overlap = 0.5;
-    end
     
-    if(exist('inputs','var'))
-        winlen = length(data.data(:,inputs(1)))/settings.nrwindows;
-        winoverlap = floor(winlen*transm_overlap);
-        for iii=1:length(inputs)
-            [transmiss_i, transmiss_freq, transmiss_coh] = ...
-                modalfrf(data.data(:,inputs(iii)),data.data(:,outputs(iii)),data.fsamp,winlen,winoverlap,'Sensor','dis');
-            transmiss(iii,f,:) = transmiss_i;
-            coher(iii,f,:) = transmiss_coh;
-        end
-    end
+
 end
+
+% this is needed due to legacy dimensions before introducing the "transmissibility" function...
+transmiss = permute(transmiss,[2 1 3]);
+coher = permute(coher,[2 1 3]);
 
 if(~(isempty(f)))
     waitbar(f/nrfiles,wb,sprintf('Finished processing (%.0d of %.0d)',f,nrfiles));
@@ -295,7 +287,9 @@ save(settings.output_file,'acq_times',...
     'velo_octave_spec','cf',...
     'channel_names','settings');
 
-if(exist('inputs','var'))
+if(isfield(settings,'inputs'))
+    inputs = settings.inputs;
+    outputs = settings.outputs;
     save(settings.output_file, 'transmiss', 'coher', 'transmiss_freq','inputs','outputs',...
         '-append');
 end

@@ -1,13 +1,13 @@
 clearvars
 close all
 
-addpath('C:\Users\Public\MATLAB\viblogger');
+addpath('C:\Users\mca67379\Documents\MATLAB\viblogger');
 
 %% config
 
 settings = struct();
 
-settings.device_ids = {'SimDev1'};  % run "devices = daq.getDevices" and find the device ID
+settings.device_ids = {'cDAQ2Mod1'};  % run "devices = daq.getDevices" and find the device ID
 
 settings.channels{1} = [0, 1, 2];  % which channels to read on each module / device
 %settings.channels{2} = [0, 1, 2];  % which channels to read on each module / device
@@ -31,7 +31,7 @@ settings.fsamp = 2048;   % sampling frequency in Hz
 settings.recording_time = 2; % time to record in seconds per block
 settings.update_time = 1; %time in-between plots and other functions updates
 
-settings.timeout = 2;   % max acquisition time in seconds
+settings.timeout = 10;   % max acquisition time in seconds
 
 settings.output_folder = '.'; %where to save the results
 

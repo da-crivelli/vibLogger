@@ -264,7 +264,7 @@ for f=f_zero:nrfiles
     
     % can be overridden in runVibAnalyzer.m
     if(isfield(settings,'inputs'))
-        [tx,transmiss_freq,coh] = transmissibility(settings,data);
+        [tx,transmiss_freq,coh] = transmissibility(settings,data.data);
         transmiss(f,:,:) = tx;
         coher(f,:,:) = coh;
     end

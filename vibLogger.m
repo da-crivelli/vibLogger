@@ -100,6 +100,13 @@ function s = vibLogger(settings)
         lh_display = addlistener(s,'DataAvailable', ...
             @(src,event) display_data(event.TimeStamps, event.Data, settings));
     end
+    
+    % This is called during every "short" loop
+    if(isfield(settings,'callback_shortloop'))
+        short_callback = str2func(settings.callback_shortloop);
+        lh_callback = addlistener(s,'DataAvailable', ...
+            @(src,event) short_callback(event.TimeStamps, event.Data, settings));
+    end
 
     if(isfield(settings, 'datetime_timeout'))
         settings.timeout = ceil(seconds(settings.datetime_timeout - datetime('now')));
@@ -132,12 +139,6 @@ end
 function save_data(time, this_data, settings)
     is_buffer_full = append_dataBuffer(time, this_data, settings);
     
-    % This is called during every "short" loop. TODO: make asynchronous?
-    if(isfield(settings,'callback_shortloop'))
-        short_callback = str2func(settings.callback_shortloop);
-        short_callback(this_data, settings);
-    end
-    
     if(is_buffer_full)
         buffer_data = get_dataBuffer();
         settings = buffer_data.settings;
@@ -164,6 +165,14 @@ function display_data(t, data, settings)
         nrchans = nrchans + length(settings.channels{dev});
     end
 
+    if(~exist('live_fg','var'))
+        global live_fg
+        live_fg = figure();
+    else
+        global live_fg
+        figure(live_fg);
+    end
+    
     for ch=1:nrchans
         subplot(nrchans,2,2*ch-1);
         plot(t, data(:,ch));

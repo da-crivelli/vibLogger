@@ -33,9 +33,19 @@ opts = p.Results;
 sz = size(transmiss);
 
 %% TODO: needs to change to support a single file (split "reshape" before processing)
-trz = mean(abs(reshape(transmiss,[sz(2:end) 1])),1);
-cohz = mean(reshape(coher,[sz(2:end) 1]),1);
-ang = mean(reshape(rad2deg(unwrap(angle(transmiss))),[sz(2:end) 1]),1); 
+
+if(ndims(transmiss) == 3)
+    trz = mean(abs(reshape(transmiss,[sz(2:end) 1])),1);
+    cohz = mean(reshape(coher,[sz(2:end) 1]),1);
+    ang = mean(reshape(rad2deg(unwrap(angle(transmiss))),[sz(2:end) 1]),1); 
+    line_opts = {'Color',[0.65 0.65 0.65]};
+else
+    trz = abs(transmiss);
+    cohz = coher;
+    ang = rad2deg(unwrap(angle(transmiss))); 
+    freq = freq';
+    line_opts = {};
+end
 
 high_coh = cohz >= opts.CoherenceFilter;
 
@@ -48,39 +58,49 @@ trz_hi(~high_coh) = NaN;
 ang_hi = ang;
 ang_hi(~high_coh) = NaN;
 
-if(opts.FigureVar)
-    fig = figure(opts.FigureVar, 'name',opts.FigureName);
+if(isgraphics(opts.FigureVar))
+    fig = figure(opts.FigureVar);
+    clf(fig);
 else
     fig = figure('name',opts.FigureName);
 end
 
+% magnitude
 ax1 = subplot(3,1,1);
-loglog(freq,trz,'Color',[0.65 0.65 0.65]);
+loglog(freq,trz,line_opts{:});
 hold on;
-loglog(f_hi,trz_hi,'Color','black');
+if(opts.CoherenceFilter < 1)
+    loglog(f_hi,trz_hi,'Color','black');
+end
 ylabel('Transmissibility ratio')
 grid on;
 axis tight;
 
 title(opts.FigureTitle);
 
+% phase
 ax2 = subplot(3,1,2);
-semilogx(freq, ang,'Color',[0.65 0.65 0.65]);
+semilogx(freq, ang, line_opts{:});
 hold on;
-semilogx(f_hi,ang_hi,'Color','black');
+if(opts.CoherenceFilter < 1)
+    semilogx(f_hi,ang_hi,'Color','black');
+end
 ylabel('Phase (deg)');
 grid on;
 axis tight;
 
+% coherence
 ax3 = subplot(3,1,3);
-semilogx(freq,cohz,'Color','black');
+semilogx(freq,cohz,line_opts{:});
 hold on;
 ylabel('Coherence');
 grid on;
 axis tight;
 
 xl = xlim();
-semilogx(xl,[opts.CoherenceFilter,opts.CoherenceFilter],'--k');
+if(opts.CoherenceFilter < 1)
+    semilogx(xl,[opts.CoherenceFilter,opts.CoherenceFilter],'--k');
+end
 xlabel('Frequency (Hz)');
 
 linkaxes([ax1, ax2, ax3], 'x');

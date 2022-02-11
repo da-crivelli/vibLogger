@@ -38,6 +38,7 @@ function s = vibLogger(settings)
     
     addpath(strcat(fileparts(which(mfilename)),filesep,'utils'));
     addpath(strcat(fileparts(which(mfilename)),filesep,'integrations'));
+    addpath(strcat(fileparts(which(mfilename)),filesep,'plots'));
 
     clear global dataBuffer;
 
@@ -160,16 +161,17 @@ function save_data(time, this_data, settings)
 end
 
 function display_data(t, data, settings)
+    % TODO: move this to the custom callbacks section
     nrchans = 0;
     for dev=1:length(settings.device_ids)
         nrchans = nrchans + length(settings.channels{dev});
     end
 
-    if(~exist('live_fg','var'))
-        global live_fg
+    global live_fg
+    
+    if(~isgraphics(live_fg))
         live_fg = figure();
     else
-        global live_fg
         figure(live_fg);
     end
     

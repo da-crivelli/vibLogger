@@ -169,7 +169,7 @@ function display_data(t, data, settings)
 
     global live_fg
     
-    if(~isgraphics(live_fg))
+    if(~any(isgraphics(live_fg)))
         live_fg = figure();
     else
         figure(live_fg);

@@ -31,7 +31,7 @@ settings.fsamp = 2048;   % sampling frequency in Hz
 settings.recording_time = 2; % time to record in seconds per block
 settings.update_time = 1; %time in-between plots and other functions updates
 
-settings.timeout = 10;   % max acquisition time in seconds
+settings.timeout = 60;   % max acquisition time in seconds
 
 settings.output_folder = '.'; %where to save the results
 

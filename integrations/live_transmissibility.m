@@ -8,21 +8,15 @@ function live_transmissibility(ts, data, settings)
     
     global trans_fg
     
-    if(~isgraphics(trans_fg))
+    if(~any(isgraphics(trans_fg)))
         trans_fg = figure();
     else
         figure(trans_fg);
     end
     
-    
     plot_transmissibility(transmiss_freq, transmiss, coher,...
-        'FigureVar', trans_fg);
-    
-    %trz = abs(transmiss);
-    %ang = rad2deg(unwrap(angle(transmiss))); 
-    
-    %loglog(transmiss_freq,trz);
-    
-    disp('1');
+        'FigureVar', trans_fg,...
+        'FigureTitle', sprintf('%.0f s', ts(1)) );
+
 end
 

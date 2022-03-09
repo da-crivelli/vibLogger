@@ -46,7 +46,7 @@ else
 end
 
 %% process files one by one
-files = ls([settings.data_folder,filesep,'*.mat']);
+files = dir([settings.data_folder,filesep,'*.mat']);
 
 rms_disp = [];
 integr_disp = [];
@@ -106,7 +106,7 @@ for f=f_zero:nrfiles
     success = false;
     while (attempt <= 5) && ~success
         try
-            filename = strcat(settings.data_folder,filesep,files(f,:));
+            filename = strcat(settings.data_folder,filesep,files(f,:).name);
             data = load(filename);
             success = true;
             skip_file = false;

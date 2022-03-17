@@ -37,7 +37,8 @@ sz = size(transmiss);
 if(ndims(transmiss) == 3)
     trz = mean(abs(reshape(transmiss,[sz(2:end) 1])),1);
     cohz = mean(reshape(coher,[sz(2:end) 1]),1);
-    ang = mean(reshape(rad2deg(unwrap(angle(transmiss))),[sz(2:end) 1]),1); 
+    ang = mean(reshape(rad2deg(unwrap(angle(transmiss),[],3)),[sz(2:end) 1]),1); 
+    
     line_opts = {'Color',[0.65 0.65 0.65]};
 else
     trz = abs(transmiss);

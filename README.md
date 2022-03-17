@@ -3,6 +3,8 @@
 Vibration data logger and analysis tools.
 All the examples below are also available under the Examples folder as .m files.
 
+This is up to date as of 20220315
+
 ## Logging data
 To log data you need to call `vibLogger()` with a few configuration parameters.
 You can copy the following example in a .m script and run it.

@@ -7,9 +7,9 @@ function [transmiss,transmiss_freq,coher] = transmissibility(settings,data)
     transmiss_freq = [];
     coher = [];
     
-    if(isfield(settings,'transmiss_inputs'))
-        inputs = settings.transmiss_inputs;
-        outputs = settings.transmiss_outputs;
+    if(isfield(settings,'inputs'))
+        inputs = settings.inputs;
+        outputs = settings.outputs;
     end
     
     if(isfield(settings,'winoverlap'))
@@ -18,8 +18,14 @@ function [transmiss,transmiss_freq,coher] = transmissibility(settings,data)
         transm_overlap = 0.5;
     end
     
+    if(isfield(settings,'nrwindows'))
+        nrwindows = settings.nrwindows;
+    else
+        nrwindows = 3;
+    end
+    
     if(exist('inputs','var'))
-        winlen = length(data(:,inputs(1)))/settings.nrwindows;
+        winlen = length(data(:,inputs(1)))/nrwindows;
         winoverlap = floor(winlen*transm_overlap);
         for iii=1:length(inputs)
             [transmiss_i, transmiss_freq, transmiss_coh] = ...

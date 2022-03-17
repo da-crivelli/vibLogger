@@ -26,6 +26,7 @@ addParameter(p,'FigureTitle','',@ischar);
 addParameter(p,'CoherenceFilter',1,@isnumeric);
 addParameter(p,'FreqRange',[-Inf Inf],@(x) validateattributes(x,{'numeric'},{'size',[1,2]}));
 addParameter(p,'FigureVar',false);
+addParameter(p,'ChannelLegend',{});
 
 parse(p,varargin{:});
 opts = p.Results;
@@ -106,5 +107,10 @@ xlabel('Frequency (Hz)');
 
 linkaxes([ax1, ax2, ax3], 'x');
 xlim(ax1,opts.FreqRange);
+
+% build legend
+if(~isempty(opts.ChannelLegend))
+    legend(opts.ChannelLegend);
+end
 
 end

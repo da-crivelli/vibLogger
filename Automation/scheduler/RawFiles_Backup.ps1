@@ -1,9 +1,9 @@
-﻿Start-Transcript -Path "C:\Users\Public\Documents\I13_I_Vibration\logs\raw_backup.txt" -Append
+Start-Transcript -Path "C:\Users\Public\Documents\I13_I_Vibration\logs\raw_backup.txt" -Append
 
 Set-Variable -Name "RawFiles_Dir" -Value "C:\Users\Public\Documents\I13_I_Vibration\raw_data\"
 Set-Variable -Name "Backup_Dir" -Value "\\diamproject01\diamond$\Science\I13\Vibration_Monitoring\raw_data\"
 
-Set-Variable -Name "nrdays" -Value 50
+Set-Variable -Name "nrdays" -Value 20
 
 Add-Type -assembly "system.io.compression.filesystem"
 

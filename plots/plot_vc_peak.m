@@ -27,6 +27,7 @@ p = inputParser;
 addParameter(p,'FigureName','Figure',@ischar);
 addParameter(p,'YLabel','Y',@ischar);
 addParameter(p,'Legend',{''});
+addParameter(p,'FigureHandle',[]);
 
 
 parse(p,varargin{:});
@@ -36,12 +37,21 @@ nr_chans = size(velo_octave_spec,1);
 velo_octave_max = max(velo_octave_spec,[],2);
 velo_octave_max = squeeze(velo_octave_max)';
 
-fig = figure('name',opts.FigureName);
+if(isempty(opts.FigureHandle))
+    fig = figure('name',opts.FigureName);
+else
+    fig = figure(opts.FigureHandle);
+end
+
+line_colors = colororder();
 
 % fix if time is shorter than velo_octave max
 trim = min(size(velo_octave_max,1),length(acq_times_file));
 
-semilogy(acq_times_file(1:trim),velo_octave_max(1:trim,:));
+l = semilogy(acq_times_file(1:trim),velo_octave_max(1:trim,:));
+for i=1:length(l)
+    set(l(i), 'color', line_colors(i,:));
+end
 legend(opts.Legend);
 
 ylabel(opts.YLabel);
@@ -50,12 +60,17 @@ title('Velocity peaks');
 hold on;
     
 xx = xlim();
+
+
 for cvc = 1:length(vc_curves)
     semilogy(xx,[vc_curves(cvc) vc_curves(cvc)],'--','color',[0.5 0.5 0.5],'HandleVisibility','off');
-    t = text(xx(1)+0.1,vc_curves(cvc),vc_labels{cvc});
-    %t.BackgroundColor = [1 1 1];
-    t.VerticalAlignment = 'bottom';
+    if(isempty(opts.FigureHandle))
+        t = text(xx(1)+0.1,vc_curves(cvc),vc_labels{cvc});
+        %t.BackgroundColor = [1 1 1];
+        t.VerticalAlignment = 'bottom';
+    end
 end
+
 
 
 grid on;

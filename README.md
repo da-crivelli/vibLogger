@@ -3,9 +3,20 @@
 Vibration data logger and analysis tools.
 All the examples below are also available under the Examples folder as .m files.
 
-This is up to date as of 20220315
+## Operations with GUI
+A more detailed step-by-step guide with pictures is available on https://confluence.diamond.ac.uk/x/2sgAC
 
-## Logging data
+`vibLogger` and `vibPlots` have a GUI but `vibAnalyser` does not. You still need to analyse data manually with a script for now.
+
+### vibLoggerGUI
+`run '<viblogger_path>\gui\VibLoggerGUI.mlapp'`
+
+### vibPlotsGUI
+`run '<viblogger_path>\gui\VibLoggerGUI.mlapp'`
+
+## Operations without GUI
+
+### Logging data
 To log data you need to call `vibLogger()` with a few configuration parameters.
 You can copy the following example in a .m script and run it.
 
@@ -58,7 +69,7 @@ vibLogger(settings);
 
 ```
 
-## Processing data
+### Processing data
 
 To process data you need to call the `vibAnalyzer()` function - see below example for available settings. The processor will save a single .mat file `settings.output_file` which can then be consumed by `vibPlotter()`.
 
@@ -103,7 +114,7 @@ vibAnalyzer(settings);
 ```
 
 
-## Plotting data
+### Plotting data
 
 To produce plots, you need to call the `vibPlotter()` function - see below example for available settings.
 The plotter will save, if `SAVE_PLOTS` is set to `true`, a collection of .pdf and .png plots in addition to
@@ -160,7 +171,7 @@ vibPlots(settings);
 ```
 
 
-## Annotations support in plots
+### Annotations support in plots
 If you place a `annotations.csv` file in the same folder as `processed_file`, the annotations that you
 specify will be added to the following time based plots:
  - p2p_t

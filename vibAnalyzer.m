@@ -104,7 +104,9 @@ for f=f_zero:nrfiles
     % occasionally so we wait and retry a few times
     attempt = 1;
     success = false;
-    while (attempt <= 5) && ~success
+    skip_file = false;
+    
+    while (attempt <= 5) && ~success && ~skip_file
         try
             filename = strcat(settings.data_folder,filesep,files(f,:).name);
             data = load(filename);
@@ -121,7 +123,8 @@ for f=f_zero:nrfiles
                 fprintf('Error accessing %s, pausing for %.0ds\n',filename,pause_time);
                 skip_file = false;
                 pause(pause_time);
-            elseif(strcmp(err.identifier, 'MATLAB:load:unableToReadMatFile'))
+            elseif(strcmp(err.identifier, 'MATLAB:load:unableToReadMatFile') || ...
+                    strcmp(err.identifier, 'MATLAB:load:notBinaryFile'))
                 skip_file = true;
                 fprintf('Unable to read %s - skipping - consider removing the file if this happens again\n',filename);
             else

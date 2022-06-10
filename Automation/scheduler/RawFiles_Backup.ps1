@@ -23,15 +23,15 @@ foreach($dir in $directories){
     # zip directory
     [io.compression.zipfile]::CreateFromDirectory($source_dir, $archive_file)
 
-    # move zip to S drive
+    # move zip to destination
     Move-Item -Path $archive_file -Destination $Backup_Dir
 
     $fileToCheck = $Backup_Dir + $dir + ".zip"
-    # if the file has been moved, remove directory and clear bin
-    if (Test-Path $fileToCheck -PathType leaf){
-        Remove-Item $source_dir -Recurse
-        Clear-RecycleBin -Force
-    }
+
+    # after the file has been moved, remove directory and clear bin
+    Remove-Item $source_dir -Recurse
+    Clear-RecycleBin -Force
+
 }
 
 Stop-Transcript

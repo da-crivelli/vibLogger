@@ -105,7 +105,6 @@ for f=f_zero:nrfiles
     attempt = 1;
     success = false;
     skip_file = false;
-    
     while (attempt <= 5) && ~success && ~skip_file
         try
             filename = strcat(settings.data_folder,filesep,files(f,:).name);

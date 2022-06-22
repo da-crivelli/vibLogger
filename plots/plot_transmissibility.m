@@ -49,9 +49,9 @@ ang_hi(~high_coh) = NaN;
 fig = figure('name',opts.FigureName);
 
 ax1 = subplot(3,1,1);
-loglog(freq,trz,'Color',[0.65 0.65 0.65]);
+loglog(freq,trz,'Color',[0.65 0.65 0.65], 'DisplayName', opts.FigureTitle);
 hold on;
-loglog(f_hi,trz_hi,'Color','black');
+loglog(f_hi,trz_hi,'Color','black', 'DisplayName', opts.FigureTitle);
 ylabel('Transmissibility ratio')
 grid on;
 axis tight;
@@ -59,15 +59,15 @@ axis tight;
 title(opts.FigureTitle);
 
 ax2 = subplot(3,1,2);
-semilogx(freq, ang,'Color',[0.65 0.65 0.65]);
+semilogx(freq, ang,'Color',[0.65 0.65 0.65], 'DisplayName', opts.FigureTitle);
 hold on;
-semilogx(f_hi,ang_hi,'Color','black');
+semilogx(f_hi,ang_hi,'Color','black', 'DisplayName', opts.FigureTitle);
 ylabel('Phase (deg)');
 grid on;
 axis tight;
 
 ax3 = subplot(3,1,3);
-semilogx(freq,cohz,'Color','black');
+semilogx(freq,cohz,'Color','black', 'DisplayName', opts.FigureTitle);
 hold on;
 ylabel('Coherence');
 grid on;

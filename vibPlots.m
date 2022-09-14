@@ -56,7 +56,7 @@
 %   see also VIBLOGGER, VIBANALYZER, SENSORS_DB
 
 
-function vibPlots(opts, cached_data)
+function figures = vibPlots(opts, cached_data)
 
 addpath(strcat(fileparts(which(mfilename)),filesep,'plots'));
 addpath(strcat(fileparts(which(mfilename)),filesep,'utils'));

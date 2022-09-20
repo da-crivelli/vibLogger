@@ -50,7 +50,7 @@ trim = min(size(velo_octave_max,1),length(acq_times_file));
 
 l = semilogy(acq_times_file(1:trim),velo_octave_max(1:trim,:));
 for i=1:length(l)
-    set(l(i), 'color', line_colors(i,:));
+    set(l(i), 'color', line_colors(mod(i-1,7)+1,:));
 end
 legend(opts.Legend);
 

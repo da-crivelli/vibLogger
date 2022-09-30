@@ -17,6 +17,14 @@ function [sens] = sensors_db(in)
     % --- add new sensors to this area ---
     sensors = containers.Map;
 
+    sensors('49144') = struct(  'sens',1.015e-9,...    %in V/nm/s2
+                                'make','PCB',...
+                                'model','393B31'); 
+                            
+    sensors('49312') = struct(  'sens',0.993e-9,...    %in V/nm/s2
+                                'make','PCB',...
+                                'model','393B31');                               
+    
     sensors('50887') = struct(  'sens',1.022e-9,...    %in V/nm/s2
                                 'make','PCB',...
                                 'model','393B31');

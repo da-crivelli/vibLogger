@@ -421,6 +421,15 @@ fg_names = figures.keys;
 annotation_plots_enabled = {'p2p_t', 'rms_t', 'PSD_','VC_peak'};
 annotation_plots_subfig = [3 3 4 2];
 
+
+if(~isfield(opts, 'annotations_file'))
+    processed_folder = fileparts(opts.processed_file);
+    annotations_csv = strcat(processed_folder, filesep, 'annotations.csv');
+    if(exist(annotations_csv,'file'))
+        opts.annotations_file = annotations_csv;
+    end
+end
+
 if(isfield(opts,'annotations_file'))
     annotations = readtable(opts.annotations_file);
     annotations.Properties.VariableNames = {'Time','Annotation'};

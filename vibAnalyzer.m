@@ -218,7 +218,6 @@ for f=f_zero:nrfiles
         
         % calculate spectra
         [pxx, freq] = pwelch(y1(~isnan(y1)),[],[],[],data.fsamp,'psd');
-        warning('Pwelch calculation has changed; plots not guaranteed to work')
         
         fres = freq(2)-freq(1);
 

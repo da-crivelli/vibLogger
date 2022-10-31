@@ -168,7 +168,8 @@ for f=f_zero:nrfiles
         catch reshape_err
             if (strcmp(reshape_err.identifier,'MATLAB:getReshapeDims:notDivisible'))
                 padsize = ceil(size(y1,1)/settings.nrchunks)*settings.nrchunks - size(y1,1); % find the number of zeros needed to pad on the end
-                y1 = padarray(y1,padsize,0,'post');
+                y1 = padarray(y1,padsize,nan,'post');
+                
                 accel = reshape(y1,[],settings.nrchunks);
             else
                 rethrow(reshape_err)
@@ -185,10 +186,11 @@ for f=f_zero:nrfiles
         
         disp = velo2disp(velo,1/data.fsamp);
         
-        % velocity octave spectrum in um/s
-        [p,cf] = poctave(velo./1e03,data.fsamp,settings.octave_opts{:});
+        % velocity octave spectrum in m/s
+        [p,cf] = poctave(velo(~isnan(velo)).*1e-09,data.fsamp,settings.octave_opts{:});
 
-        velo_octave_spec(chan,:,f) = p;
+        % power to RMS and convert to um/s
+        velo_octave_spec(chan,:,f) = sqrt(p).*1e06;
         
         % calculate RMS
         %rms_disp_chunk(chan,:) = rms(disp);
@@ -203,8 +205,9 @@ for f=f_zero:nrfiles
             %[integr, ff, spec_disp, rms_disp_ff] = fft_integrated_accel2disp(accel, data.fsamp, settings.highpass, 'velocity');
             nr_integr = 1;
         end
-        [integr1, spec_disp, freq] = fast_rms(accel, data.fsamp, nr_integr);
-        [integr, ff, f_range] = integrated_fft(spec_disp, freq, ...
+        [integr1, fft_disp, freq] = fast_rms(accel, data.fsamp, nr_integr);
+        
+        [integr, ff, f_range] = integrated_fft(fft_disp, freq, ...
              'flimit',[settings.highpass, settings.fcut]);
         %integr = max(integr);
         integr1;
@@ -214,11 +217,19 @@ for f=f_zero:nrfiles
         p2p_disp_chunk(chan,:) = 2*sqrt(2)*max(integr',[],2);
         
         % calculate spectra
-        [pxx, freq] = pwelch(y1,[],1,settings.spectrogram_freqs,data.fsamp);
+        [pxx, freq] = pwelch(y1(~isnan(y1)),[],[],[],data.fsamp,'psd');
+        warning('Pwelch calculation has changed; plots not guaranteed to work')
         
+        fres = freq(2)-freq(1);
+
         psd_vib_block(chan,:) = pxx;
         
-        psd_vib_block_disp(chan, :) = mean(spec_disp(f_range,:),2);
+        % calculate PSD of displacement from FFT
+        %spec_disp = (fft_disp.^2)./(freq(2)-freq(1));
+        spec_disp = pxx ./ ((2*pi*freq).^4);
+
+
+        psd_vib_block_disp(chan, :) = mean(spec_disp,2);
         
         % debug plots
         if settings.CHECK_PLOTS
@@ -298,7 +309,8 @@ save(settings.output_file,'acq_times',...
     'channel_names','settings');
 
 if(exist('inputs','var'))
-    save(settings.output_file, 'transmiss', 'coher', 'transmiss_freq','inputs','outputs',...
+    save(settings.output_file, 'transmiss', 'coher',...
+        'transmiss_freq','inputs','outputs','sensor_ids',...
         '-append');
 end
 

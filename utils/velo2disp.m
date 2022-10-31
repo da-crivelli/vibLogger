@@ -32,7 +32,7 @@ function disp_data = velo2disp(velo_data, delta_t, varargin)
     params = p.Results;
     
     % take DCout of the velocity data
-    velo_data = velo_data - mean(velo_data);
+    velo_data = velo_data - mean(velo_data,'omitnan');
     
     % integration happens here
     nr_channels = size(velo_data,2);
@@ -41,7 +41,7 @@ function disp_data = velo2disp(velo_data, delta_t, varargin)
     disp_data = cumtrapz(t,velo_data);
     
     % take DC out of displacement data
-    disp_data = detrend(disp_data,2);% - mean(disp_data);
+    disp_data = detrend(disp_data,2,'omitnan');% - mean(disp_data);
     %disp_data = disp_data - mean(disp_data);
     
     % plots data if requested

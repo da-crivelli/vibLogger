@@ -41,7 +41,7 @@ function disp_data = velo2disp(velo_data, delta_t, varargin)
     disp_data = cumtrapz(t,velo_data);
     
     % take DC out of displacement data
-    disp_data = detrend(disp_data,2,'omitnan');% - mean(disp_data);
+    disp_data = disp_data - mean(disp_data);
     %disp_data = disp_data - mean(disp_data);
     
     % plots data if requested

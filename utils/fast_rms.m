@@ -18,8 +18,15 @@ if(~exist('nr_integr','var')); nr_integr = 0; end;
 
 % calculate the FFT so that I^2_RMS=I^2_0+∑1/2 I^2_i
 
-nsamp = size(data,1);
-all_fft = abs(fft(data,[],1))./nsamp;
+data(isnan(data))=0;
+
+data_hann = data.*hann(size(data,1));
+hann_correct  = sqrt(var(data)./var(data_hann));                    % Determine energy correction factor
+data_acc_hann = data_hann.*hann_correct;
+
+
+nsamp = size(data_acc_hann,1);
+all_fft = abs(fft(data_acc_hann,[],1))./nsamp;
 all_fft = all_fft(1:floor(nsamp/2)+1,:);
 
 % remove DC offset

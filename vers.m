@@ -1,2 +1,2 @@
-viblogger_version = "2.8";
-viblogger_version_name = "Infinite Jest (annotated edition)";
+viblogger_version = "3.0";
+viblogger_version_name = "Is this thing on?";

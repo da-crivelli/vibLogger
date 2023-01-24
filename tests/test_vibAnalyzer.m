@@ -7,6 +7,7 @@ viblogger_dir = fileparts(pwd())
 
 addpath(viblogger_dir);
 addpath([viblogger_dir,'/plots']);
+addpath([viblogger_dir,'/utils']);
 
 
 test_dir = strcat(viblogger_dir, filesep,'tests');

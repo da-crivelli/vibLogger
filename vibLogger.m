@@ -40,6 +40,7 @@ function s = vibLogger(settings)
     addpath(strcat(fileparts(which(mfilename)),filesep,'integrations'));
 
     clear global dataBuffer;
+    clear global realtimePlot;
 
     if(~isfolder(settings.output_folder))
         mkdir(settings.output_folder);
@@ -159,19 +160,32 @@ function save_data(time, this_data, settings)
 end
 
 function display_data(t, data, settings)
+    global realtimePlot;
+
+    try
+        figure(realtimePlot);
+    catch err
+        realtimePlot = figure();
+    end
+
     nrchans = 0;
     for dev=1:length(settings.device_ids)
         nrchans = nrchans + length(settings.channels{dev});
     end
 
+    [pw,f] = pwelch(data,[],[],[],settings.fsamp);
+
+    tiledlayout(nrchans,2,'TileSpacing','none','Padding','loose')
+    nexttile
     for ch=1:nrchans
-        subplot(nrchans,2,2*ch-1);
+        %subplot(nrchans,2,2*ch-1);
         plot(t, data(:,ch));
         ylabel(settings.channel_names{ch});
+        nexttile
 
-        subplot(nrchans,2,2*ch);
-        pwelch(data(:,ch),[],[],[],settings.fsamp);
-
+        %subplot(nrchans,2,2*ch);
+        loglog(f,pw(:,ch));
+        nexttile
     end
 end
 

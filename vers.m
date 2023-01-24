@@ -1,2 +1,2 @@
-viblogger_version = "3.0";
-viblogger_version_name = "Is this thing on?";
+viblogger_version = "3.1";
+viblogger_version_name = "All your database are belong to us";

@@ -1,4 +1,4 @@
-function [sens] = sensors_db(in)
+function [sens] = sensors_db(in, csv_name)
 %SENSORS_DB returns the sensitivity values as a 1xN array for the sensors
 % specified
 %   cal = SENSORS_DB({'sn1','sn2'}) returns sensitivity values for sensors
@@ -7,210 +7,99 @@ function [sens] = sensors_db(in)
 %   SENSORS_DB('list') prints a list of all available sensors and serial
 %   numbers
 %
+%   SENSORS_DB('csv') prints a csv-formatted list of all available sensors and serial
+%   numbers
+%   SENSORS_DB('csv', 'file.csv') saves a csv-formatted list of all available sensors and serial
+%   numbers
+%
 %   Davide Crivelli
 %   davide.crivelli@diamond.ac.uk
 %
 %  For details and usage see https://gitlab.diamond.ac.uk/mca67379/viblogger
 %
 %  see also: VIBANALYZER, VIBPLOTS, VIBLOGGER
-
-    % --- add new sensors to this area ---
-    sensors = containers.Map;
-
-    sensors('49144') = struct(  'sens',1.015e-9,...    %in V/nm/s2
-                                'make','PCB',...
-                                'model','393B31'); 
-                            
-    sensors('49312') = struct(  'sens',0.993e-9,...    %in V/nm/s2
-                                'make','PCB',...
-                                'model','393B31');                               
-    
-    sensors('50887') = struct(  'sens',1.022e-9,...    %in V/nm/s2
-                                'make','PCB',...
-                                'model','393B31');
-
-    sensors('50983') = struct(  'sens', 0.990e-9,...
-                                'make', 'PCB',...
-                                'model', '393B31');
-
-    sensors('50985') = struct(  'sens', 0.999e-9,...
-                                'make', 'PCB',...
-                                'model', '393B31');
-                            
-    sensors('58594') = struct(  'sens', 0.984e-9,...
-                                'make', 'PCB',...
-                                'model', '393B31');
-
-    sensors('58595') = struct(  'sens', 0.989e-9,...
-                                'make', 'PCB',...
-                                'model', '393B31');
-
-    sensors('61716') = struct(  'sens', 0.990e-9,...
-                                'make', 'PCB',...
-                                'model', '393B31');
-
-    sensors('61717') = struct(  'sens', 0.996e-9,...
-                                'make', 'PCB',...
-                                'model', '393B31');
-
-    sensors('61708') = struct(  'sens', 0.986e-9,...
-                                'make', 'PCB',...
-                                'model', '393B31');
-
-    % I13 installation
-    sensors('60354') = struct(  'sens', 1.021e-9,...
-                                'make', 'PCB',...
-                                'model', '393B31',...
-                                'gui_hide', true);
-
-    sensors('60660') = struct(  'sens', 1.014e-9,...
-                                'make', 'PCB',...
-                                'model', '393B31',...
-                                'gui_hide', true);
-
-    sensors('60662') = struct(  'sens', 1.026e-9,...
-                                'make', 'PCB',...
-                                'model', '393B31',...
-                                'gui_hide', true);
-
-    % Deployable vib kit lot 1
-    sensors('67080') = struct(  'sens', 1.021e-9,...
-                                'make', 'PCB',...
-                                'model', '393B31',...
-                                'gui_hide', false);
-
-    sensors('67081') = struct(  'sens', 1.014e-9,...
-                                'make', 'PCB',...
-                                'model', '393B31',...
-                                'gui_hide', false);
-
-    sensors('67082') = struct(  'sens', 1.026e-9,...
-                                'make', 'PCB',...
-                                'model', '393B31',...
-                                'gui_hide', false);
-
-	% 3-pin old accels
-	sensors('6168') = struct(   'sens', 1.013e-9,...
-                                'make', 'PCB',...
-                                'model', '626A34');
-
-	sensors('6169') = struct(   'sens', 1.017e-9,...
-                                'make', 'PCB',...
-                                'model', '626A34');
-
-	sensors('6170') = struct(   'sens', 1.016e-9,...
-                                'make', 'PCB',...
-                                'model', '626A34');
-
-    % I14 installation
-    sensors('12455') = struct(  'sens',	1.019e-9,...
-                                'make','Wilcoxon',...
-                                'model','731A',...
-                                'gui_hide', true);
-
-    sensors('12456') = struct(  'sens',	1.019e-9,...
-                                'make','Wilcoxon',...
-                                'model','731A',...
-                                'gui_hide', true);
-
-    sensors('12457') = struct(  'sens',	1.019e-9,...
-                                'make','Wilcoxon',...
-                                'model','731A',...
-                                'gui_hide', true);
-
-   % eBIC Krios installation
-   sensors('64878') = struct(   'sens',	1.000e-9,...
-                                'make','PCB',...
-                                'model','393B31',...
-                                'gui_hide', true);
-
-   sensors('64879') = struct(   'sens',	1.016e-9,...
-                                'make','PCB',...
-                                'model','393B31',...
-                                'gui_hide', true);
-
-   sensors('64880') = struct(   'sens',	0.998e-9,...
-                                'make','PCB',...
-                                'model','393B31',...
-                                'gui_hide', true);
-   % eBIC Krios installation
-   sensors('64881') = struct(   'sens',	0.990e-9,...
-                                'make','PCB',...
-                                'model','393B31',...
-                                'gui_hide', true);
-
-   sensors('64882') = struct(   'sens',	0.997e-9,...
-                                'make','PCB',...
-                                'model','393B31',...
-                                'gui_hide', true);
-
-   sensors('65190') = struct(   'sens',	1.014e-9,...
-                                'make','PCB',...
-                                'model','393B31',...
-                                'gui_hide', true);
-
-    % triaxial small sensor
-    sensors('LW214478_X') = struct(  'sens', 0.0983e-9,...
-                                'make', 'PCB',...
-                                'model', '356B18');
-    sensors('LW214478_Y') = struct(  'sens', 0.1033e-9,...
-                                'make', 'PCB',...
-                                'model', '356B18');
-    sensors('LW214478_Z') = struct(  'sens', 0.1031e-9,...
-                                'make', 'PCB',...
-                                'model', '356B18');
-
-    % Guralp CMG-ESPD (in m/s)
-    sensors('CMG-T3E-0038_V') = struct(  'sens', 3.1e-6,...
-                                'make', 'Guralp',...
-                                'model', 'CMG-ESPD');
-    sensors('CMG-T3E-0038_N') = struct(  'sens', 3.2e-6,...
-                                'make', 'Guralp',...
-                                'model', 'CMG-ESPD');
-    sensors('CMG-T3E-0038_E') = struct(  'sens', 3.2e-6,...
-                                'make', 'Guralp',...
-                                'model', 'CMG-ESPD');
-
-    sensors('velo') = struct(  'sens', 1e-9,...
-        'make', 'Velocity sensor',...
-        'model', 'directly converted in nm/s');
-
-    sensors('unity') = struct(  'sens', 1,...
-        'make', 'Unity sensor (for tests only)',...
-        'model', 'n/a');
-
-    % --- end sensors DB ---
+    arguments
+        in
+        csv_name string = strcat(fileparts(mfilename('fullpath')),filesep,"db\sensors.csv")
+    end
 
     % if the input is a cell, it's a list of sensors. Prepare and return a
     % list of sensitivities.
+
+    sensors = csv_to_sensors_table(csv_name);
+    
     if(iscell(in))
         sens = [];
         for k=in
-            sens(end+1) = sensors(k{1}).sens;
+            sens(end+1) = sensors(sensors.ID == k{1},:).sens;
         end
     else
     % if the input is a string, it's a command
         switch(in)
             case 'list'
-                fprintf('MAKE\tMODEL\tSENSIT.\t\tID\n');
-                for k=sensors.keys
-                    fprintf('%s\t\t%s\t%.3d\t%s\n',sensors(k{1}).make, ...
-                        sensors(k{1}).model,sensors(k{1}).sens,k{1});
-                end
+                disp(sensors);
             case 'all'
                 sens = sensors;
             case 'gui'
-                for k=sensors.keys
-                    if(isfield(sensors(k{1}),'gui_hide'))
-                        if(sensors(k{1}).gui_hide)
-                            remove(sensors, k);
-                        end
-                    end
-                end
-                sens = sensors;
+                % convert to struct for vibloggerGUI
+                sensors_gui = sensors(sensors.gui_hide == 0 & isnat(sensors.removed_date),:);
+                sens = table_to_map_of_cells(sensors_gui);
+            case 'csv'
+                sensors_cell_to_csv(sensors, csv_name);
             otherwise
                 error('Error. \nOption ''%s'' not recognised',in);
         end
     end
+
+end
+
+function sens = table_to_map_of_cells(table_data)
+
+    sensors_ids = table2cell(table_data(:,["ID"]));
+    
+    keys = ["sens","make","model","gui_hide"];
+    sensors_data = table2struct(table_data(:,keys));
+    
+    sens = containers.Map('KeyType','char','ValueType','any');
+    for k=1:length(sensors_ids)
+        sens(sensors_ids{k}) = sensors_data(k);
+    end
+end
+
+function sensors_cell_to_csv(sensors, csv_name)
+    arguments
+        sensors 
+        csv_name string = ""
+    end
+
+    if(csv_name ~= "")
+        fprintf("%s\n",["printing to csv: ", csv_name]);
+        f = fopen(csv_name,'w');
+    else
+        f = 1;
+    end
+
+    fprintf(f, 'MAKE,MODEL,ID,SENS,GUI_HIDE,REMOVED_DATE\n');
+    for k=sensors.keys
+        gui_hide = 0;
+        removed_date = 0;
+        if(isfield(sensors(k{1}),'gui_hide')); gui_hide = sensors(k{1}).gui_hide; end
+        if(isfield(sensors(k{1}),'removed_date')); removed_date = sensors(k{1}).removed_date; end
+
+        fprintf(f, '%s,%s,%s,%e,%i,%i\n',sensors(k{1}).make, ...
+            sensors(k{1}).model,k{1},sensors(k{1}).sens,gui_hide,removed_date);
+    end
+
+    if(csv_name ~= "")
+        fclose(f);
+    end
+
+end
+
+function data = csv_to_sensors_table(csv_name)
+    arguments 
+        csv_name string
+    end
+    data = readtable(csv_name, 'TextType','string','Format','%s %s %s %f %f %{dd/mm/yy}D');
 
 end

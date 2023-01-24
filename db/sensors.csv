@@ -1,4 +1,4 @@
-MAKE,MODEL,ID,SENS(V/nm/s^2),GUI_HIDE,REMOVED_DATE
+make,model,ID,sens,gui_hide,removed_date
 Wilcoxon,731A,12455,1.019000e-09,1,0
 Wilcoxon,731A,12456,1.019000e-09,1,0
 Wilcoxon,731A,12457,1.019000e-09,1,0

@@ -20,41 +20,30 @@ function [sens] = sensors_db(in, csv_name)
 %  see also: VIBANALYZER, VIBPLOTS, VIBLOGGER
     arguments
         in
-        csv_name string = ""
+        csv_name string = strcat(fileparts(mfilename('fullpath')),filesep,"db\sensors.csv")
     end
-
-    sensors = containers.Map;
 
     % if the input is a cell, it's a list of sensors. Prepare and return a
     % list of sensitivities.
 
-    csv_to_sensors_cell();
-
+    sensors = csv_to_sensors_table(csv_name);
+    
     if(iscell(in))
         sens = [];
         for k=in
-            sens(end+1) = sensors(k{1}).sens;
+            sens(end+1) = sensors(sensors.ID == k{1},:).sens;
         end
     else
     % if the input is a string, it's a command
         switch(in)
             case 'list'
-                fprintf('MAKE\tMODEL\tSENSIT.\t\tID\n');
-                for k=sensors.keys
-                    fprintf('%s\t\t%s\t%.3d\t%s\n',sensors(k{1}).make, ...
-                        sensors(k{1}).model,sensors(k{1}).sens,k{1});
-                end
+                disp(sensors);
             case 'all'
                 sens = sensors;
             case 'gui'
-                for k=sensors.keys
-                    if(isfield(sensors(k{1}),'gui_hide'))
-                        if(sensors(k{1}).gui_hide)
-                            remove(sensors, k);
-                        end
-                    end
-                end
-                sens = sensors;
+                % convert to struct for vibloggerGUI
+                sensors_gui = sensors(sensors.gui_hide == 0 & isnat(sensors.removed_date),:);
+                sens = table_to_map_of_cells(sensors_gui);
             case 'csv'
                 sensors_cell_to_csv(sensors, csv_name);
             otherwise
@@ -62,6 +51,19 @@ function [sens] = sensors_db(in, csv_name)
         end
     end
 
+end
+
+function sens = table_to_map_of_cells(table_data)
+
+    sensors_ids = table2cell(table_data(:,["ID"]));
+    
+    keys = ["sens","make","model","gui_hide"];
+    sensors_data = table2struct(table_data(:,keys));
+    
+    sens = containers.Map('KeyType','char','ValueType','any');
+    for k=1:length(sensors_ids)
+        sens(sensors_ids{k}) = sensors_data(k);
+    end
 end
 
 function sensors_cell_to_csv(sensors, csv_name)
@@ -77,7 +79,7 @@ function sensors_cell_to_csv(sensors, csv_name)
         f = 1;
     end
 
-    fprintf(f, 'MAKE,MODEL,ID,SENS(V/nm/s^2),GUI_HIDE,REMOVED_DATE\n');
+    fprintf(f, 'MAKE,MODEL,ID,SENS,GUI_HIDE,REMOVED_DATE\n');
     for k=sensors.keys
         gui_hide = 0;
         removed_date = 0;
@@ -94,10 +96,10 @@ function sensors_cell_to_csv(sensors, csv_name)
 
 end
 
-function csv_to_sensors_cell(csv_name)
+function data = csv_to_sensors_table(csv_name)
     arguments 
-        csv_name string = "db\sensors.csv"
+        csv_name string
     end
-
+    data = readtable(csv_name, 'TextType','string','Format','%s %s %s %f %f %{dd/mm/yy}D');
 
 end

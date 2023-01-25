@@ -176,8 +176,9 @@ function display_data(t, data, settings)
     [pw,f] = pwelch(data,[],[],[],settings.fsamp);
 
     tiledlayout(nrchans,2,'TileSpacing','none','Padding','loose')
-    nexttile
+    
     for ch=1:nrchans
+        nexttile
         %subplot(nrchans,2,2*ch-1);
         plot(t, data(:,ch));
         ylabel(settings.channel_names{ch});
@@ -185,7 +186,7 @@ function display_data(t, data, settings)
 
         %subplot(nrchans,2,2*ch);
         loglog(f,pw(:,ch));
-        nexttile
+        
     end
 end
 

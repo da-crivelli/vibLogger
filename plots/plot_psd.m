@@ -26,12 +26,16 @@ parse(p,varargin{:});
 opts = p.Results;
 
 fig = figure('name',opts.FigureName);
+try
 loglog(f,psd);
 grid on;
 
 legend(opts.Legend,'EdgeColor','white','Color','white');
 xlabel('Frequency (Hz)');
 ylabel(opts.YLabel);
-
+catch er
+    disp('Error in PSD. Perhaps data was processed with an older version?')
+    disp(er.message);
+end
 
 end

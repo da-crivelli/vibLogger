@@ -52,6 +52,7 @@ ax2 = subplot(3,1,2:3);
 t(end+1) = x(end);
 psd(:,end+1) = psd(:,end);
 
+try
 surf(t,f,psd,'EdgeColor','none');
 view(0,90);
 colormap(flipud(gray))
@@ -64,4 +65,7 @@ ylabel('Frequency (Hz)')
 ylim([1 max(f)]);
 
 linkaxes([ax1, ax2], 'x');
+catch er
+    disp('Error in spectrogram. Perhaps data was processed with an older version?')
+    disp(er.message);
 end

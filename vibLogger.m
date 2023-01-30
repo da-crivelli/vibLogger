@@ -175,7 +175,7 @@ function display_data(t, data, settings)
 
     [pw,f] = pwelch(data,[],[],[],settings.fsamp);
 
-    tiledlayout(nrchans,2,'TileSpacing','none','Padding','loose')
+    tiledlayout(nrchans,2,'TileSpacing','none','Padding','compact')
     
     for ch=1:nrchans
         nexttile
